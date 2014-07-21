@@ -67,7 +67,6 @@ public class FetchPRTTask extends AsyncTask<String, Void, String> {
         JSONObject prtObj = null;
         String prtMessage = "";
         int prtStatus;
-        result = result.substring(2, result.length()-3);
         try {
             prtObj = new JSONObject(result);
             prtMessage = prtObj.get("message").toString();
