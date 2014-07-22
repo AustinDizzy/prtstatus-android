@@ -23,7 +23,8 @@
         android:layout_centerInParent="true"
         android:typeface="normal"
         android:gravity="center"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:fontFamily="Arial" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -54,5 +55,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="61dp"
         android:gravity="center"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:fontFamily="Arial" />
 </RelativeLayout>
