@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="The PRT is currently DOWN. LOREM IPSUM LOREM IPSUM LOREM IPSUM"
+        android:text="Loading..."
         android:id="@+id/prtMessage"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="150dp"
@@ -49,12 +49,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Updated at "
         android:id="@+id/updatedTime"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="61dp"
         android:gravity="center"
         android:textColor="@android:color/white"
-        android:fontFamily="Arial" />
+        android:fontFamily="Arial"
+        android:text="Updated never." />
 </RelativeLayout>
