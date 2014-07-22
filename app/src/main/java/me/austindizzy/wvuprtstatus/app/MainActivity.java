@@ -39,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         Context context = getApplicationContext();
-        new FetchPRTTask(context).execute("http://prtstatus.sitespace.wvu.edu/cache.php?json=true");
+        new FetchPRTTask(context).execute("https://austindizzy.me/prt.json");
     }
 
 
@@ -57,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
 
             Toast toast = Toast.makeText(context, "Settings Clicked", Toast.LENGTH_SHORT);
             toast.show();
-            new FetchPRTTask(context).execute("http://prtstatus.sitespace.wvu.edu/cache.php?json=true");
+            new FetchPRTTask(context).execute("https://austindizzy.me/prt.json");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -122,11 +122,10 @@ public class MainActivity extends ActionBarActivity {
                 String prtMessage = prtObj.get("message").toString();
                 int prtStatus = Integer.parseInt(prtObj.get("status").toString());
                 long longPRTDate = Long.parseLong(prtObj.get("timestamp").toString()) * 1000;
-                String prtDate = new Date(longPRTDate).toString();
-
+                long currentTime = new Date().getTime();
+                String prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate, currentTime, 0).toString();
 
                 updateStatus(prtMessage, prtDate, prtStatus);
-
             } catch (JSONException e) {
                 Log.i("PARSE EXCEPTION", e.toString() + prtObj.toString());
             }
