@@ -28,12 +28,11 @@ import java.util.Date;
 
 public class MainActivity extends ActionBarActivity {
 
-    public static Context context;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        main.getWindow().getDecorView().setBackgroundColor(main.getResources().getColor(R.color.Gray));
 
         Context context = getApplicationContext();
         new FetchPRTTask(context).execute("https://austindizzy.me/prt.json");
