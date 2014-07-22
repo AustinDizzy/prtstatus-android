@@ -38,6 +38,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
+
         if(!isNetworkAvailable()) {
             TextView prtMessage = (TextView)MainContext.findViewById(R.id.prtMessage);
             prtMessage.setText(R.string.no_network);
@@ -85,8 +86,8 @@ public class MainActivity extends ActionBarActivity {
 
         protected String doInBackground(String... url){
 
-            InputStream is = null;
-            String result = "";
+            InputStream is;
+            String result;
 
             try {
                 HttpClient httpclient = new DefaultHttpClient();
@@ -102,7 +103,7 @@ public class MainActivity extends ActionBarActivity {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is,"utf-8"),8);
                 StringBuilder sb = new StringBuilder();
-                String line = null;
+                String line;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line + "\n");
                 }
@@ -154,11 +155,10 @@ public class MainActivity extends ActionBarActivity {
             Toast toast = Toast.makeText(MainContext.getApplicationContext(), prtMessage, Toast.LENGTH_SHORT);
             toast.show();
 
-            if (prtStatus != 1) {
+            if (prtStatus != 1)
                 MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
-            } else {
+            else
                 MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.ForestGreen));
-            }
         }
     }
 
