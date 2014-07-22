@@ -1,17 +1,14 @@
 package me.austindizzy.wvuprtstatus.app;
 
 import android.app.Activity;
-import android.app.Application;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Context;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
