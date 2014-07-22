@@ -28,14 +28,15 @@ import java.util.Date;
 
 public class MainActivity extends ActionBarActivity {
 
+    Activity MainContext = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        main.getWindow().getDecorView().setBackgroundColor(main.getResources().getColor(R.color.Gray));
 
-        Context context = getApplicationContext();
-        new FetchPRTTask(context).execute("https://austindizzy.me/prt.json");
+        MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
+        new FetchPRTTask().execute("https://austindizzy.me/prt.json");
     }
 
 
@@ -49,24 +50,19 @@ public class MainActivity extends ActionBarActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            Context context = MainActivity.this;
+            //TODO: Maybe settings, maybe not.
 
-            Toast toast = Toast.makeText(context, "Settings Clicked", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(MainContext.getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
             toast.show();
-            new FetchPRTTask(context).execute("https://austindizzy.me/prt.json");
+        } else if (id == R.id.action_refresh) {
+            new FetchPRTTask().execute("https://austindizzy.me/prt.json");
+        } else if (id == R.id.action_about) {
+            //TODO: An about page or something.
         }
         return super.onOptionsItemSelected(item);
     }
 
-    Activity main = this;
-
     private class FetchPRTTask extends AsyncTask<String, Void, String> {
-
-        private Context mContext;
-
-        public FetchPRTTask(Context context){
-            mContext = context;
-        }
 
         protected String doInBackground(String... url){
 
@@ -130,19 +126,19 @@ public class MainActivity extends ActionBarActivity {
 
         public void updateStatus(String prtMessage, String prtDate, int prtStatus){
 
-            TextView prtMessageView = (TextView)main.findViewById(R.id.prtMessage);
-            TextView prtUpdatedView = (TextView)main.findViewById(R.id.updatedTime);
+            TextView prtMessageView = (TextView)MainContext.findViewById(R.id.prtMessage);
+            TextView prtUpdatedView = (TextView)MainContext.findViewById(R.id.updatedTime);
 
             prtMessageView.setText(prtMessage);
             prtUpdatedView.setText("Updated " + prtDate);
 
-            Toast toast = Toast.makeText(mContext, prtMessage, Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(MainContext.getApplicationContext(), prtMessage, Toast.LENGTH_SHORT);
             toast.show();
 
             if (prtStatus != 1) {
-                main.getWindow().getDecorView().setBackgroundColor(main.getResources().getColor(R.color.FireBrick));
+                MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
             } else {
-                main.getWindow().getDecorView().setBackgroundColor(main.getResources().getColor(R.color.ForestGreen));
+                MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.ForestGreen));
             }
         }
     }
