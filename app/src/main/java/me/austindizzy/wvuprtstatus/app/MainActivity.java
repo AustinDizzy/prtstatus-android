@@ -1,6 +1,9 @@
 package me.austindizzy.wvuprtstatus.app;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -8,7 +11,6 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.content.Context;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +38,12 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
-        new FetchPRTTask().execute("https://austindizzy.me/prt.json");
+        if(!isNetworkAvailable()) {
+            TextView prtMessage = (TextView)MainContext.findViewById(R.id.prtMessage);
+            prtMessage.setText(R.string.no_network);
+        } else {
+            new FetchPRTTask().execute("https://austindizzy.me/prt.json");
+        }
     }
 
 
@@ -55,11 +62,23 @@ public class MainActivity extends ActionBarActivity {
             Toast toast = Toast.makeText(MainContext.getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
             toast.show();
         } else if (id == R.id.action_refresh) {
-            new FetchPRTTask().execute("https://austindizzy.me/prt.json");
+            if(!isNetworkAvailable()) {
+                Toast toast = Toast.makeText(MainContext.getApplicationContext(), R.string.no_network, Toast.LENGTH_LONG);
+                toast.show();
+            } else {
+                new FetchPRTTask().execute("https://austindizzy.me/prt.json");
+            }
         } else if (id == R.id.action_about) {
             //TODO: An about page or something.
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkConn = connectivityManager.getActiveNetworkInfo();
+
+        return activeNetworkConn != null && activeNetworkConn.isConnectedOrConnecting();
     }
 
     private class FetchPRTTask extends AsyncTask<String, Void, String> {
