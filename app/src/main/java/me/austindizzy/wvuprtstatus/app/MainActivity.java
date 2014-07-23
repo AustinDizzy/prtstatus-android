@@ -35,6 +35,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 
+/**
+ * WVUPRTStatus by AustinDizzy <@AustinDizzy>
+ *     7/23/2014.
+ */
 
 public class MainActivity extends ActionBarActivity {
 

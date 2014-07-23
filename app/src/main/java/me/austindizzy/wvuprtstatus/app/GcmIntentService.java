@@ -1,8 +1,6 @@
 package me.austindizzy.wvuprtstatus.app;
 
-import android.app.Application;
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +10,8 @@ import android.os.Handler;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 /**
- * Created by Austin on 7/23/2014.
+ * WVUPRTStatus by AustinDizzy <@AustinDizzy>
+ *     7/23/2014.
  */
 
 public class GcmIntentService extends IntentService {
@@ -34,7 +33,6 @@ public class GcmIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
-        Log.i("GCM Extras", extras.toString());
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
 
         String messageType = gcm.getMessageType(intent);
@@ -44,7 +42,7 @@ public class GcmIntentService extends IntentService {
 
         //TODO: Log data to SQLite database or something for cached responses and to be still able to update views on MainActivity create
 
-        Log.i("GCM", "Received : (" + messageType + ")  " + extras.getString("title"));
+        Log.i("GCM", "Received : (" + messageType + ")  " + extras.getString("message"));
 
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }

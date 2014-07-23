@@ -8,8 +8,10 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 /**
- * Created by Austin on 7/22/2014.
+ * WVUPRTStatus by AustinDizzy <@AustinDizzy>
+ *     7/23/2014.
  */
+
 public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 
     @Override
