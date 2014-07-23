@@ -152,9 +152,6 @@ public class MainActivity extends ActionBarActivity {
             prtMessageView.setText(prtMessage);
             prtUpdatedView.setText("Updated " + prtDate);
 
-            Toast toast = Toast.makeText(MainContext.getApplicationContext(), prtMessage, Toast.LENGTH_SHORT);
-            toast.show();
-
             if (prtStatus != 1)
                 MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
             else
