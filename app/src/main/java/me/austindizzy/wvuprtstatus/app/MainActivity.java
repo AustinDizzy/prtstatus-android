@@ -61,9 +61,7 @@ public class MainActivity extends ActionBarActivity {
         MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
 
         if(!checkPlayServices()) {
-            Toast toast = Toast.makeText(MainContext.getApplicationContext(), "Go get Google Play Services", Toast.LENGTH_LONG);
-            toast.show();
-            System.exit(1);
+            //checkPlayServices() displays "Get Play Services" prompt.
         } else {
             gcm = GoogleCloudMessaging.getInstance(this);
             regId = getRegistrationId(MainContext.getApplicationContext());
@@ -103,13 +101,6 @@ public class MainActivity extends ActionBarActivity {
 
             Toast toast = Toast.makeText(MainContext.getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
             toast.show();
-        } else if (id == R.id.action_refresh) {
-            if(!isNetworkAvailable()) {
-                Toast toast = Toast.makeText(MainContext.getApplicationContext(), R.string.no_network, Toast.LENGTH_LONG);
-                toast.show();
-            } else {
-                new FetchPRTTask().execute("https://austindizzy.me/prt.json");
-            }
         } else if (id == R.id.action_about) {
             //TODO: An about page or something.
         }
