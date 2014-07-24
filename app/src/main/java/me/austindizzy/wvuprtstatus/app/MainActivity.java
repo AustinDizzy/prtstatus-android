@@ -1,6 +1,7 @@
 package me.austindizzy.wvuprtstatus.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -11,9 +12,12 @@ import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,7 +106,20 @@ public class MainActivity extends ActionBarActivity {
             Toast toast = Toast.makeText(MainContext.getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
             toast.show();
         } else if (id == R.id.action_about) {
-            //TODO: An about page or something.
+            LayoutInflater inflater = LayoutInflater.from(MainContext);
+            View layout = inflater.inflate(R.layout.about_dialog, null);
+            AlertDialog.Builder aboutDialog = new AlertDialog.Builder(MainContext);
+            aboutDialog.setTitle("About");
+            aboutDialog.setIcon(android.R.drawable.ic_menu_info_details);
+            aboutDialog.setPositiveButton("Okay", null);
+
+            AlertDialog displayAbout = aboutDialog.create();
+            displayAbout.setView(layout, 0, 5, 0, 0);
+            displayAbout.show();
+            TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
+            String mess = getString(R.string.about_dialog);
+            aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(MainContext)) + ".0"));
+            aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
         }
         return super.onOptionsItemSelected(item);
     }

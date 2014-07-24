@@ -7,4 +7,13 @@
     <string name="action_about">About</string>
     <string name="action_refresh">Refresh</string>
     <string name="no_network">Error: No Internet Connection Detected</string>
+    <string name="about_dialog">WVU PRT Status\n
+    by Austin Dizzy\n
+\n
+    Version {versionID}\n
+\n
+    This app is FOSS.\n View the source on <a href="https://github.com/AustinDizzy/wvuprtstatus">GitHub</a>\n
+        Follow me on <a href="https://twitter.com/AustinDizzy">Twitter</a>
+\n\n
+    Made by the hands of a proud Mountaineer.</string>
 </resources>
