@@ -25,19 +25,22 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * WVUPRTStatus by AustinDizzy <@AustinDizzy>
@@ -53,7 +56,7 @@ public class MainActivity extends ActionBarActivity {
     GoogleCloudMessaging gcm;
     SharedPreferences prefs;
     public static final String PROPERTY_REG_ID = "registration_id";
-    public static final String PROPERTY_APP_VERSION = "0.1";
+    public static final String PROPERTY_APP_VERSION = "appVersion";
 
     String regId;
 
@@ -164,9 +167,20 @@ public class MainActivity extends ActionBarActivity {
                         gcm = GoogleCloudMessaging.getInstance(MainContext.getApplicationContext());
                     }
                     regId = gcm.register(SENDER_ID);
-                    msg = "Device registered, registration ID =" + regId;
+                    msg = "Successfully registered with GCM. ID = " + regId;
 
-                    //sendRegistrationIdToBackend();
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost("https://austindizzy.me/prt/_sandbox/user");
+                    List <NameValuePair> postData = new ArrayList<NameValuePair>();
+                    postData.add(new BasicNameValuePair("regID", regId));
+                    httpPost.setEntity(new UrlEncodedFormEntity(postData, HTTP.UTF_8));
+                    try {
+                        HttpResponse httpResponse = httpClient.execute(httpPost);
+                    } catch (ClientProtocolException e) {
+                        Log.i("ClientProtocolException", e.toString());
+                    } catch (IOException e) {
+                        Log.i("IOException", e.toString());
+                    }
 
                     storeRegistrationId(MainContext.getApplicationContext(), regId);
                 } catch (IOException ex){
@@ -214,82 +228,34 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
-    //TODO: Clean out AsyncTask and update new GCM handler to parse/update view properly
-    private class FetchPRTTask extends AsyncTask<String, Void, String> {
+    public void parseStatus(JSONObject prtObj) {
+        try {
 
-        protected String doInBackground(String... url){
+            String prtMessage = prtObj.get("message").toString();
+            int prtStatus = Integer.parseInt(prtObj.get("status").toString());
+            long longPRTDate = Long.parseLong(prtObj.get("timestamp").toString()) * 1000;
+            long currentTime = new Date().getTime();
+            String prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate, currentTime, 0).toString();
 
-            InputStream is;
-            String result;
-
-            try {
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpGet httpget = new HttpGet(url[0]);
-                HttpResponse response = httpclient.execute(httpget);
-                HttpEntity entity = response.getEntity();
-                is = entity.getContent();
-            } catch(Exception e) {
-                Log.i("HTTP", "Caught " + e);
-                return null;
-            }
-
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is,"utf-8"),8);
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line + "\n");
-                }
-                is.close();
-                result = sb.toString();
-                return result;
-            } catch(Exception e) {
-                Log.i("JSON", "Caught " + e);
-                return null;
-            }
+            updateStatus(prtMessage, prtDate, prtStatus);
+        } catch (JSONException e) {
+            Log.i("PARSE EXCEPTION", e.toString() + prtObj.toString());
         }
 
-        protected void onPostExecute(String result) {
-            JSONObject prtObj = null;
+    }
 
-            try {
-                prtObj = new JSONObject(result);
-            } catch (JSONException e) {
-                Log.i("JSON EXCEPTION", e.toString());
-            }
+    public void updateStatus(String prtMessage, String prtDate, int prtStatus){
 
-            parseStatus(prtObj);
-        }
+        TextView prtMessageView = (TextView)MainContext.findViewById(R.id.prtMessage);
+        TextView prtUpdatedView = (TextView)MainContext.findViewById(R.id.updatedTime);
 
-        public void parseStatus(JSONObject prtObj) {
-            try {
+        prtMessageView.setText(prtMessage);
+        prtUpdatedView.setText("Updated " + prtDate);
 
-                String prtMessage = prtObj.get("message").toString();
-                int prtStatus = Integer.parseInt(prtObj.get("status").toString());
-                long longPRTDate = Long.parseLong(prtObj.get("timestamp").toString()) * 1000;
-                long currentTime = new Date().getTime();
-                String prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate, currentTime, 0).toString();
-
-                updateStatus(prtMessage, prtDate, prtStatus);
-            } catch (JSONException e) {
-                Log.i("PARSE EXCEPTION", e.toString() + prtObj.toString());
-            }
-
-        }
-
-        public void updateStatus(String prtMessage, String prtDate, int prtStatus){
-
-            TextView prtMessageView = (TextView)MainContext.findViewById(R.id.prtMessage);
-            TextView prtUpdatedView = (TextView)MainContext.findViewById(R.id.updatedTime);
-
-            prtMessageView.setText(prtMessage);
-            prtUpdatedView.setText("Updated " + prtDate);
-
-            if (prtStatus != 1)
-                MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
-            else
-                MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.ForestGreen));
-        }
+        if (prtStatus != 1)
+            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
+        else
+            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.ForestGreen));
     }
 
 }
