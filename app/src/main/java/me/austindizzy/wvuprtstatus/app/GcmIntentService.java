@@ -23,7 +23,9 @@ public class GcmIntentService extends IntentService {
     private Handler handler;
     private static final int notificationID = 1975;
 
-    String prtMessage;
+    String prtMessage, notificationTitle;
+    int prtStatus;
+    long prtDate;
     public GcmIntentService() {
         super("GcmMessageHandler");
         Log.i("GCM INTENT", "INVOKED");
@@ -43,6 +45,13 @@ public class GcmIntentService extends IntentService {
         String messageType = gcm.getMessageType(intent);
 
         prtMessage = extras.getString("message");
+        prtStatus = Integer.parseInt(extras.getString("status"));
+        prtDate = Long.parseLong(extras.getString("timestamp")) * 1000;
+        if (prtStatus != 1) {
+            notificationTitle = "The PRT is down!";
+        } else {
+            notificationTitle = "The PRT is now running!";
+        }
         showToast();
 
         //TODO: Log data to SQLite database or something for cached responses and to be still able to update views on MainActivity create
@@ -60,7 +69,7 @@ public class GcmIntentService extends IntentService {
                 NotificationCompat.Builder notifBuilder =
                         new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("The PRT is down!")
+                        .setContentTitle(notificationTitle)
                         .setContentText(prtMessage)
                         .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
                         .setContentIntent(contentIntent);
