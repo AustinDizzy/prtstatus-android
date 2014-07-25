@@ -36,13 +36,14 @@
         android:layout_alignParentEnd="true">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@android:dimen/thumbnail_width"
+            android:layout_height="@android:dimen/thumbnail_height"
             android:id="@+id/statusIcon"
             android:layout_marginTop="65dp"
             android:src="@drawable/ic_launcher"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="false" />
     </RelativeLayout>
 
     <TextView
