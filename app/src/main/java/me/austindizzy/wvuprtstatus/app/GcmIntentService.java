@@ -6,12 +6,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.util.Date;
 
 /**
  * WVUPRTStatus by AustinDizzy <@AustinDizzy>
@@ -23,9 +27,10 @@ public class GcmIntentService extends IntentService {
     private Handler handler;
     private static final int notificationID = 1975;
 
-    String prtMessage, notificationTitle;
+    String prtMessage, notificationTitle, prtDate;
     int prtStatus;
-    long prtDate;
+    long longPRTDate;
+
     public GcmIntentService() {
         super("GcmMessageHandler");
         Log.i("GCM INTENT", "INVOKED");
@@ -46,13 +51,17 @@ public class GcmIntentService extends IntentService {
 
         prtMessage = extras.getString("message");
         prtStatus = Integer.parseInt(extras.getString("status"));
-        prtDate = Long.parseLong(extras.getString("timestamp")) * 1000;
+        longPRTDate = Long.parseLong(extras.getString("timestamp")) * 1000;
+        prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate,
+                new Date().getTime(), 0).toString();
+
         if (prtStatus != 1) {
             notificationTitle = "The PRT is down!";
         } else {
             notificationTitle = "The PRT is now running!";
         }
-        showToast();
+        showNotification();
+        saveToPrefs();
 
         //TODO: Log data to SQLite database or something for cached responses and to be still able to update views on MainActivity create
 
@@ -61,7 +70,15 @@ public class GcmIntentService extends IntentService {
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    public void showToast(){
+    public void saveToPrefs(){
+        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
+        prefs.edit().putString("prtMessage", prtMessage)
+                .putInt("prtStatus", prtStatus)
+                .putString("prtDate",  prtDate)
+                .commit();
+    }
+
+    public void showNotification(){
         handler.post(new Runnable() {
             public void run() {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);

@@ -9,15 +9,16 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,12 +35,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,12 +57,13 @@ public class MainActivity extends ActionBarActivity {
     public static final String PROPERTY_APP_VERSION = "appVersion";
 
     String regId;
+    private Handler UIHandler;
+    private final int scheduleInterval = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
 
         if(!checkPlayServices()) {
@@ -78,20 +77,20 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
-        /**
-        if(!isNetworkAvailable()) {
-            TextView prtMessage = (TextView)MainContext.findViewById(R.id.prtMessage);
-            prtMessage.setText(R.string.no_network);
-        } else {
-            new FetchPRTTask().execute("https://austindizzy.me/prt.json");
-        }
-        **/
+        UIHandler = new Handler();
     }
 
     @Override
-    protected void onResume() {
+    public void onPause() {
+        super.onPause();
+        UIHandler.removeCallbacks(UIUpdateScheduler);
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
         checkPlayServices();
+        UIUpdateScheduler.run();
     }
 
     @Override
@@ -126,6 +125,14 @@ public class MainActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    Runnable UIUpdateScheduler = new Runnable() {
+        @Override
+        public void run() {
+            updateStatus();
+            UIHandler.postDelayed(UIUpdateScheduler, scheduleInterval);
+        }
+    };
 
     private String getRegistrationId(Context context) {
         final SharedPreferences prefs = getGCMPreferences(context);
@@ -228,34 +235,31 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
-    public void parseStatus(JSONObject prtObj) {
-        try {
+    private void updateStatus(){
+        prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
+        String prtMessage = prefs.getString("prtMessage", "Unknown");
+        int prtStatus = prefs.getInt("prtStatus", 0);
+        String prtDate = prefs.getString("prtDate", "never");
 
-            String prtMessage = prtObj.get("message").toString();
-            int prtStatus = Integer.parseInt(prtObj.get("status").toString());
-            long longPRTDate = Long.parseLong(prtObj.get("timestamp").toString()) * 1000;
-            long currentTime = new Date().getTime();
-            String prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate, currentTime, 0).toString();
-
-            updateStatus(prtMessage, prtDate, prtStatus);
-        } catch (JSONException e) {
-            Log.i("PARSE EXCEPTION", e.toString() + prtObj.toString());
-        }
-
-    }
-
-    public void updateStatus(String prtMessage, String prtDate, int prtStatus){
+        Log.i("updateStatus", "prtMessage: " + prtMessage + "\nprtStatus: " + prtStatus + "\nprtDate: Updated " + prtDate);
 
         TextView prtMessageView = (TextView)MainContext.findViewById(R.id.prtMessage);
         TextView prtUpdatedView = (TextView)MainContext.findViewById(R.id.updatedTime);
+        ImageView statusIcon = (ImageView)MainContext.findViewById(R.id.statusIcon);
 
         prtMessageView.setText(prtMessage);
         prtUpdatedView.setText("Updated " + prtDate);
 
-        if (prtStatus != 1)
-            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
-        else
+        if (prtStatus == 1) {
             MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.ForestGreen));
+            statusIcon.setImageResource(R.drawable.running);
+        } else if (prtStatus == 0) {
+            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
+            statusIcon.setImageResource(R.drawable.unknown);
+        } else {
+            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
+            statusIcon.setImageResource(R.drawable.down);
+        }
     }
 
 }
