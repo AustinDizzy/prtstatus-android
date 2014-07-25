@@ -47,7 +47,6 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    Activity MainContext = this;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     String SENDER_ID = "195209769133";
 
@@ -64,17 +63,22 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
+        getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.Gray));
 
         if(!checkPlayServices()) {
             //checkPlayServices() displays "Get Play Services" prompt.
         } else {
             gcm = GoogleCloudMessaging.getInstance(this);
-            regId = getRegistrationId(MainContext.getApplicationContext());
+            regId = getRegistrationId(getApplicationContext());
 
             if(regId.isEmpty()) {
                 registerInBackground();
             }
+        }
+
+        if(!isNetworkAvailable()) {
+            Toast toast = Toast.makeText(getApplicationContext(), R.string.no_network, Toast.LENGTH_SHORT);
+            toast.show();
         }
 
         UIHandler = new Handler();
@@ -105,12 +109,12 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             //TODO: Maybe settings, maybe not.
 
-            Toast toast = Toast.makeText(MainContext.getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
             toast.show();
         } else if (id == R.id.action_about) {
-            LayoutInflater inflater = LayoutInflater.from(MainContext);
+            LayoutInflater inflater = LayoutInflater.from(this);
             View layout = inflater.inflate(R.layout.about_dialog, null);
-            AlertDialog.Builder aboutDialog = new AlertDialog.Builder(MainContext);
+            AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
             aboutDialog.setTitle("About");
             aboutDialog.setIcon(android.R.drawable.ic_menu_info_details);
             aboutDialog.setPositiveButton("Okay", null);
@@ -120,7 +124,7 @@ public class MainActivity extends ActionBarActivity {
             displayAbout.show();
             TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
             String mess = getString(R.string.about_dialog);
-            aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(MainContext)) + ".0"));
+            aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(this)) + ".0"));
             aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
         }
         return super.onOptionsItemSelected(item);
@@ -171,7 +175,7 @@ public class MainActivity extends ActionBarActivity {
                 String msg;
                 try {
                     if(gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(MainContext.getApplicationContext());
+                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
                     }
                     regId = gcm.register(SENDER_ID);
                     msg = "Successfully registered with GCM. ID = " + regId;
@@ -189,7 +193,7 @@ public class MainActivity extends ActionBarActivity {
                         Log.i("IOException", e.toString());
                     }
 
-                    storeRegistrationId(MainContext.getApplicationContext(), regId);
+                    storeRegistrationId(getApplicationContext(), regId);
                 } catch (IOException ex){
                     msg = "Error: " + ex.getMessage();
                 }
@@ -243,21 +247,21 @@ public class MainActivity extends ActionBarActivity {
 
         Log.i("updateStatus", "prtMessage: " + prtMessage + "\nprtStatus: " + prtStatus + "\nprtDate: Updated " + prtDate);
 
-        TextView prtMessageView = (TextView)MainContext.findViewById(R.id.prtMessage);
-        TextView prtUpdatedView = (TextView)MainContext.findViewById(R.id.updatedTime);
-        ImageView statusIcon = (ImageView)MainContext.findViewById(R.id.statusIcon);
+        TextView prtMessageView = (TextView)this.findViewById(R.id.prtMessage);
+        TextView prtUpdatedView = (TextView)this.findViewById(R.id.updatedTime);
+        ImageView statusIcon = (ImageView)this.findViewById(R.id.statusIcon);
 
         prtMessageView.setText(prtMessage);
         prtUpdatedView.setText("Updated " + prtDate);
 
         if (prtStatus == 1) {
-            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.ForestGreen));
+            getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.ForestGreen));
             statusIcon.setImageResource(R.drawable.running);
         } else if (prtStatus == 0) {
-            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.Gray));
+            getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.Gray));
             statusIcon.setImageResource(R.drawable.unknown);
         } else {
-            MainContext.getWindow().getDecorView().setBackgroundColor(MainContext.getResources().getColor(R.color.FireBrick));
+            getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.FireBrick));
             statusIcon.setImageResource(R.drawable.down);
         }
     }
