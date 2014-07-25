@@ -1,10 +1,14 @@
 package me.austindizzy.wvuprtstatus.app;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -17,8 +21,9 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 public class GcmIntentService extends IntentService {
 
     private Handler handler;
+    private static final int notificationID = 1975;
 
-    String mes;
+    String prtMessage;
     public GcmIntentService() {
         super("GcmMessageHandler");
         Log.i("GCM INTENT", "INVOKED");
@@ -37,12 +42,12 @@ public class GcmIntentService extends IntentService {
 
         String messageType = gcm.getMessageType(intent);
 
-        mes = extras.getString("message");
+        prtMessage = extras.getString("message");
         showToast();
 
         //TODO: Log data to SQLite database or something for cached responses and to be still able to update views on MainActivity create
 
-        Log.i("GCM", "Received : (" + messageType + ")  " + extras.getString("message"));
+        Log.i("GCM", "Received : (" + messageType + ")  " + prtMessage);
 
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
@@ -50,8 +55,18 @@ public class GcmIntentService extends IntentService {
     public void showToast(){
         handler.post(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), mes, Toast.LENGTH_LONG).show();
-
+                Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+                PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, 0);
+                NotificationCompat.Builder notifBuilder =
+                        new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("The PRT is down!")
+                        .setContentText(prtMessage)
+                        .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
+                        .setContentIntent(contentIntent);
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(notificationID, notifBuilder.build());
             }
         });
     }
