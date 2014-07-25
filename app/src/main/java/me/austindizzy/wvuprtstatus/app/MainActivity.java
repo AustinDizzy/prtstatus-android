@@ -1,6 +1,5 @@
 package me.austindizzy.wvuprtstatus.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -77,7 +76,8 @@ public class MainActivity extends ActionBarActivity {
         }
 
         if(!isNetworkAvailable()) {
-            Toast toast = Toast.makeText(getApplicationContext(), R.string.no_network, Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    R.string.no_network, Toast.LENGTH_SHORT);
             toast.show();
         }
 
@@ -85,13 +85,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         UIHandler.removeCallbacks(UIUpdateScheduler);
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         checkPlayServices();
         UIUpdateScheduler.run();
@@ -109,7 +109,8 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             //TODO: Maybe settings, maybe not.
 
-            Toast toast = Toast.makeText(getApplicationContext(), "Settings Clicked", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Settings Coming Soon", Toast.LENGTH_SHORT);
             toast.show();
         } else if (id == R.id.action_about) {
             LayoutInflater inflater = LayoutInflater.from(this);
@@ -124,7 +125,7 @@ public class MainActivity extends ActionBarActivity {
             displayAbout.show();
             TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
             String mess = getString(R.string.about_dialog);
-            aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(this)) + ".0"));
+            aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(this))));
             aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
         }
         return super.onOptionsItemSelected(item);
@@ -139,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
     };
 
     private String getRegistrationId(Context context) {
-        final SharedPreferences prefs = getGCMPreferences(context);
+        final SharedPreferences prefs = getStoredPreferences();
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i("Registration", "Registration not found.");
@@ -155,13 +156,14 @@ public class MainActivity extends ActionBarActivity {
         return registrationId;
     }
 
-    private SharedPreferences getGCMPreferences(Context context){
-        return getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+    private SharedPreferences getStoredPreferences(){
+        return getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
     }
 
     private static int getAppVersion(Context context) {
         try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
             return packageInfo.versionCode;
         } catch (PackageManager.NameNotFoundException e){
             throw new RuntimeException("Could not get package name: " + e);
@@ -186,7 +188,7 @@ public class MainActivity extends ActionBarActivity {
                     postData.add(new BasicNameValuePair("regID", regId));
                     httpPost.setEntity(new UrlEncodedFormEntity(postData, HTTP.UTF_8));
                     try {
-                        HttpResponse httpResponse = httpClient.execute(httpPost);
+                        httpClient.execute(httpPost);
                     } catch (ClientProtocolException e) {
                         Log.i("ClientProtocolException", e.toString());
                     } catch (IOException e) {
@@ -207,10 +209,9 @@ public class MainActivity extends ActionBarActivity {
         }.execute(null, null, null);
     }
 
-    private void storeRegistrationId(Context context, String regId) {
-        final SharedPreferences prefs = getGCMPreferences(context);
+    public void storeRegistrationId(Context context, String regId) {
+        final SharedPreferences prefs = getStoredPreferences();
         int appVersion = getAppVersion(context);
-        Log.i("storeRegID", "Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PROPERTY_REG_ID, regId);
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
@@ -220,7 +221,6 @@ public class MainActivity extends ActionBarActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkConn = connectivityManager.getActiveNetworkInfo();
-
         return activeNetworkConn != null && activeNetworkConn.isConnectedOrConnecting();
     }
 
@@ -240,12 +240,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void updateStatus(){
-        prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
+        prefs = getStoredPreferences();
         String prtMessage = prefs.getString("prtMessage", "Unknown");
         int prtStatus = prefs.getInt("prtStatus", 0);
         String prtDate = prefs.getString("prtDate", "never");
-
-        Log.i("updateStatus", "prtMessage: " + prtMessage + "\nprtStatus: " + prtStatus + "\nprtDate: Updated " + prtDate);
 
         TextView prtMessageView = (TextView)this.findViewById(R.id.prtMessage);
         TextView prtUpdatedView = (TextView)this.findViewById(R.id.updatedTime);
@@ -255,13 +253,16 @@ public class MainActivity extends ActionBarActivity {
         prtUpdatedView.setText("Updated " + prtDate);
 
         if (prtStatus == 1) {
-            getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.ForestGreen));
+            getWindow().getDecorView().setBackgroundColor(getResources()
+                    .getColor(R.color.ForestGreen));
             statusIcon.setImageResource(R.drawable.running);
         } else if (prtStatus == 0) {
-            getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.Gray));
+            getWindow().getDecorView().setBackgroundColor(getResources()
+                    .getColor(R.color.Gray));
             statusIcon.setImageResource(R.drawable.unknown);
         } else {
-            getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.FireBrick));
+            getWindow().getDecorView().setBackgroundColor(getResources()
+                    .getColor(R.color.FireBrick));
             statusIcon.setImageResource(R.drawable.down);
         }
     }

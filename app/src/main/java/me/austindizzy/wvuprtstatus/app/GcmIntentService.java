@@ -61,7 +61,7 @@ public class GcmIntentService extends IntentService {
             notificationTitle = "The PRT is now running!";
         }
         showNotification();
-        saveToPrefs();
+        cacheToPrefs();
 
         //TODO: Log data to SQLite database or something for cached responses and to be still able to update views on MainActivity create
 
@@ -70,19 +70,20 @@ public class GcmIntentService extends IntentService {
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    public void saveToPrefs(){
+    private void cacheToPrefs(){
         SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
         prefs.edit().putString("prtMessage", prtMessage)
                 .putInt("prtStatus", prtStatus)
                 .putString("prtDate",  prtDate)
-                .commit();
+                .apply();
     }
 
-    public void showNotification(){
+    private void showNotification(){
         handler.post(new Runnable() {
             public void run() {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-                PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, 0);
+                PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(),
+                        0, resultIntent, 0);
                 NotificationCompat.Builder notifBuilder =
                         new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(R.drawable.ic_launcher)
