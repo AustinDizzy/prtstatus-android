@@ -9,8 +9,10 @@
     <string name="about_dialog">WVU PRT Status\n
     by Austin Dizzy\n
 \n
-    Version {versionID}\n
+    Version: {versionID}\n
 \n
+    Build date: {buildDate}\n
+        \n
     This app is FOSS.\n View the source on <a href="https://github.com/AustinDizzy/wvuprtstatus">GitHub</a>\n
         Follow me on <a href="https://twitter.com/AustinDizzy">Twitter</a>
 \n\n

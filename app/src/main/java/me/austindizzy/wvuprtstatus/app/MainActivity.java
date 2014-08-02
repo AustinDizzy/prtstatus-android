@@ -36,6 +36,7 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -124,7 +125,16 @@ public class MainActivity extends ActionBarActivity {
             displayAbout.show();
             TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
             String mess = getString(R.string.about_dialog);
+            String versMess = mess.replace("{versionID}", String.valueOf(getAppVersion(this)));
             aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(this))));
+            String updatedTime;
+            try {
+                updatedTime = new Date(getPackageManager().getPackageInfo(getPackageName(),
+                        0).lastUpdateTime).toString();
+            } catch (Exception e) {
+                throw new RuntimeException("updatedTime error:", e);
+            }
+            aboutMessage.setText(versMess.replace("{buildDate}", updatedTime));
             aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
         }
         return super.onOptionsItemSelected(item);
