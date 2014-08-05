@@ -55,11 +55,12 @@ public class GcmIntentService extends IntentService {
         prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate,
                 new Date().getTime(), 0).toString();
 
-        if (prtStatus != 1) {
-            notificationTitle = "The PRT is down!";
-        } else {
-            notificationTitle = "The PRT is now running!";
-        }
+//        if (prtStatus != 1) {
+//            notificationTitle = "The PRT is down!";
+//        } else {
+//            notificationTitle = "The PRT is now running!";
+//        }
+        notificationTitle = "PRT Alert";
         showNotification();
         cacheToPrefs();
 
