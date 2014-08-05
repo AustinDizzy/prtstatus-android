@@ -64,8 +64,6 @@ public class GcmIntentService extends IntentService {
         showNotification();
         cacheToPrefs();
 
-        //TODO: Log data to SQLite database or something for cached responses and to be still able to update views on MainActivity create
-
         Log.i("GCM", "Received : (" + messageType + ")  " + prtMessage);
 
         GcmBroadcastReceiver.completeWakefulIntent(intent);
