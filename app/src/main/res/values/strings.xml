@@ -6,15 +6,17 @@
     <string name="action_about">About</string>
     <string name="action_refresh">Refresh</string>
     <string name="no_network">WARNING: No Internet Connection Detected. These results may not be up to date.</string>
-    <string name="about_dialog">WVU PRT Status\n
-    by Austin Dizzy\n
-\n
-    Version: {versionID}\n
-\n
-    Build date: {buildDate}\n
-        \n
-    This app is FOSS.\n View the source on <a href="https://github.com/AustinDizzy/wvuprtstatus">GitHub</a>\n
-        Follow me on <a href="https://twitter.com/AustinDizzy">Twitter</a>
-\n\n
-    Made by the hands of a proud Mountaineer.</string>
+    <string name="about_dialog"><![CDATA[
+    WVU PRT Status<br>
+    by Austin Dizzy<br>
+<br>
+    Version: {versionID}.0<br>
+<br>
+    Build date: {buildDate}<br>
+        <br>
+    This app is FOSS.<br>
+     View the source on <a href="https://github.com/AustinDizzy/wvuprtstatus">GitHub</a><br>
+        Follow me on Twitter <a href="https://twitter.com/AustinDizzy">@AustinDizzy</a>
+<br><br>
+    Made by the hands of a proud Mountaineer.]]></string>
 </resources>

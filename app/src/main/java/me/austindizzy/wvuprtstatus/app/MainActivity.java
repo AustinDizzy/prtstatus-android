@@ -3,6 +3,7 @@ package me.austindizzy.wvuprtstatus.app;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -11,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,9 +37,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * WVUPRTStatus by AustinDizzy <@AustinDizzy>
@@ -113,29 +117,8 @@ public class MainActivity extends ActionBarActivity {
                     "Settings Coming Soon", Toast.LENGTH_SHORT);
             toast.show();
         } else if (id == R.id.action_about) {
-            LayoutInflater inflater = LayoutInflater.from(this);
-            View layout = inflater.inflate(R.layout.about_dialog, null);
-            AlertDialog.Builder aboutDialog = new AlertDialog.Builder(this);
-            aboutDialog.setTitle("About");
-            aboutDialog.setIcon(android.R.drawable.ic_menu_info_details);
-            aboutDialog.setPositiveButton("Okay", null);
+            buildAboutDialog(this).show();
 
-            AlertDialog displayAbout = aboutDialog.create();
-            displayAbout.setView(layout, 0, 5, 0, 0);
-            displayAbout.show();
-            TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
-            String mess = getString(R.string.about_dialog);
-            String versMess = mess.replace("{versionID}", String.valueOf(getAppVersion(this)));
-            aboutMessage.setText(mess.replace("{versionID}", String.valueOf(getAppVersion(this))));
-            String updatedTime;
-            try {
-                updatedTime = new Date(getPackageManager().getPackageInfo(getPackageName(),
-                        0).lastUpdateTime).toString();
-            } catch (Exception e) {
-                throw new RuntimeException("updatedTime error:", e);
-            }
-            aboutMessage.setText(versMess.replace("{buildDate}", updatedTime));
-            aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -177,6 +160,42 @@ public class MainActivity extends ActionBarActivity {
         } catch (PackageManager.NameNotFoundException e){
             throw new RuntimeException("Could not get package name: " + e);
         }
+    }
+    private static String getAppBuildDate(Context context) {
+        // credits : Pointer Null @ http://stackoverflow.com/questions/7607165
+        try {
+            ApplicationInfo ai = context.getPackageManager()
+                    .getApplicationInfo(context.getPackageName(), 0);
+            ZipFile zf = new ZipFile(ai.sourceDir);
+            ZipEntry ze = zf.getEntry("classes.dex");
+            long time = ze.getTime();
+            String s = SimpleDateFormat.getInstance().format(new java.util.Date(time));
+            zf.close();
+            return s;
+        } catch (Exception e) {
+            throw new RuntimeException("Could not get build date: " + e);
+        }
+    }
+
+    private static final AlertDialog buildAboutDialog(Context context) {
+        AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(context)
+                .setIcon(android.R.drawable.ic_menu_info_details);
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View layout = inflater.inflate(R.layout.about_dialog, null);
+
+        TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
+        String messageText = context.getString(R.string.about_dialog);
+        messageText = messageText.replace("{versionID}", String.valueOf(getAppVersion(context)));
+        String updatedTime = getAppBuildDate(context);
+        messageText = messageText.replace("{buildDate}", updatedTime);
+        aboutMessage.setText(Html.fromHtml(messageText));
+        aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
+
+        aboutBuilder.setTitle("About").setPositiveButton("Okay", null);
+        AlertDialog aboutDialog = aboutBuilder.create();
+        aboutDialog.setView(layout, 0, 5, 0, 0);
+        return aboutDialog;
     }
 
     private void registerInBackground() {
