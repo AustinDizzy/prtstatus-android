@@ -7,8 +7,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.os.Handler;
@@ -55,11 +59,6 @@ public class GcmIntentService extends IntentService {
         prtDate = DateUtils.getRelativeTimeSpanString(longPRTDate,
                 new Date().getTime(), 0).toString();
 
-//        if (prtStatus != 1) {
-//            notificationTitle = "The PRT is down!";
-//        } else {
-//            notificationTitle = "The PRT is now running!";
-//        }
         notificationTitle = "PRT Alert";
         showNotification();
         cacheToPrefs();
@@ -78,6 +77,18 @@ public class GcmIntentService extends IntentService {
     }
 
     private void showNotification(){
+
+        Bitmap mBitmap;
+
+        if (prtStatus != 1) {
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.color.FireBrick);
+        } else {
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.color.ForestGreen);
+        }
+
+        final NotificationCompat.WearableExtender wearableExtender =
+                new NotificationCompat.WearableExtender().setBackground(mBitmap);
+
         handler.post(new Runnable() {
             public void run() {
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
@@ -88,7 +99,9 @@ public class GcmIntentService extends IntentService {
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle(notificationTitle)
                         .setContentText(prtMessage)
-                        .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
+                        .extend(wearableExtender)
+                        .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND |
+                                Notification.DEFAULT_LIGHTS)
                         .setContentIntent(contentIntent);
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
