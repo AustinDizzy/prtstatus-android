@@ -152,6 +152,16 @@ public class MainActivity extends ActionBarActivity {
         return getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
     }
 
+    private static String getAppVersionName(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
     private static int getAppVersion(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager()
@@ -186,7 +196,8 @@ public class MainActivity extends ActionBarActivity {
 
         TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
         String messageText = context.getString(R.string.about_dialog);
-        messageText = messageText.replace("{versionID}", String.valueOf(getAppVersion(context)));
+        String versionName = getAppVersionName(context);
+        messageText = messageText.replace("{versionID}", versionName);
         String updatedTime = getAppBuildDate(context);
         messageText = messageText.replace("{buildDate}", updatedTime);
         if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
