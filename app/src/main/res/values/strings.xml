@@ -13,7 +13,9 @@
     Version: {versionID}.0<br>
 <br>
     Build date: {buildDate}<br>
-        <br>
+<br>
+    GCM ID: {gcmID}<br>
+    <br>
     This app is FOSS.<br>
      View the source on <a href="https://github.com/AustinDizzy/wvuprtstatus">GitHub</a><br>
         Follow me on Twitter <a href="https://twitter.com/AustinDizzy">@AustinDizzy</a>

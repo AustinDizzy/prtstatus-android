@@ -189,6 +189,11 @@ public class MainActivity extends ActionBarActivity {
         messageText = messageText.replace("{versionID}", String.valueOf(getAppVersion(context)));
         String updatedTime = getAppBuildDate(context);
         messageText = messageText.replace("{buildDate}", updatedTime);
+        if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
+            String gcmID = getStoredPreferences().getString(PROPERTY_REG_ID, "");
+            Log.i("GCMInfo", gcmID);
+            messageText = messageText.replace("{gcmID}", gcmID);
+        }
         aboutMessage.setText(Html.fromHtml(messageText));
         aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
 
