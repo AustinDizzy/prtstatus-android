@@ -9,10 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.os.Handler;
@@ -81,9 +79,9 @@ public class GcmIntentService extends IntentService {
         Bitmap mBitmap;
 
         if (prtStatus != 1) {
-            mBitmap = BitmapFactory.decodeResource(getResources(), R.color.FireBrick);
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.red_wear_bg);
         } else {
-            mBitmap = BitmapFactory.decodeResource(getResources(), R.color.ForestGreen);
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.green_wear_bg);
         }
 
         final NotificationCompat.WearableExtender wearableExtender =

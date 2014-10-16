@@ -177,7 +177,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private static final AlertDialog buildAboutDialog(Context context) {
+    private final AlertDialog buildAboutDialog(Context context) {
         AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(context)
                 .setIcon(android.R.drawable.ic_menu_info_details);
 
