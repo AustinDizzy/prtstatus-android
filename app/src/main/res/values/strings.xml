@@ -1,24 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">PRT Status</string>
+    <string name="recent_updates">Recent Updates</string>
+    <string name="last_updated">Last Updated %s</string>
     <string name="action_settings">Settings</string>
-    <string name="action_about">About</string>
-    <string name="action_refresh">Refresh</string>
-    <string name="no_network">WARNING: No Internet Connection Detected. These results may not be up to date.</string>
-    <string name="about_dialog"><![CDATA[
-    WVU PRT Status<br>
-    by Austin Dizzy<br>
-<br>
-    Version: {versionID}<br>
-<br>
-    Build date: {buildDate}<br>
-<br>
-    GCM ID: {gcmID}<br>
-    <br>
-    This app is FOSS.<br>
-     View the source on <a href="https://github.com/AustinDizzy/wvuprtstatus">GitHub</a><br>
-        Follow me on Twitter <a href="https://twitter.com/AustinDizzy">@AustinDizzy</a>
-<br><br>
-    Made by the hands of a proud Mountaineer.]]></string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_header_general">General</string>
+    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_header_other">Other</string>
+
+    <string name="pref_title_notifications">Enable Notifications</string>
+    <string name="pref_description_notifications">Enable notifications on any system changes</string>
+    <string name="notif_channel_desc">PRT Status updates and events</string>
+
+    <string name="pref_title_notification_types">Select Notification Types</string>
+    <string name="pref_description_notification_types">Only the following types of service events will trigger a notification.</string>
+    <string-array name="pref_list_notif_types">
+        <item>PRT Open</item>
+        <item>Service Disruptions</item>
+        <item>PRT Closed</item>
+    </string-array>
+
+    <string name="pref_title_select_stations">Select Stations</string>
+    <string name="pref_summary_select_stations">If notifications are enabled, only the stations selected here will trigger an alert.</string>
+    <string-array name="pref_list_stations_titles">
+        <item>Beechurst</item>
+        <item>Walnut</item>
+        <item>Engineering</item>
+        <item>Towers</item>
+        <item>Medical</item>
+    </string-array>
+
+    <string name="pref_reset_data">Clear Stored Data</string>
+
+    <string name="pref_title_enable_ads">Enable Advertisements</string>
+    <string name="pref_description_enable_ads">By default, the app is ad-free. Turning them on will show a single, small, unobstrusive advertisement directly below the current PRT status, and will help support development efforts.</string>
+
+    <string name="pref_okay">Thanks</string>
+    <string name="pref_close">Close</string>
+    <string name="pref_about_title">About</string>
+    <string name="pref_about_text"><![CDATA[
+        <h3>WVU PRT Status <small>by Austin Siford <small>(<a href="https://twitter.com/AustinDizzy">@AustinDizzy</a> / <a href="https://abs.ec">abs.ec</a>)</small></small></h3><b>Version:</b> {{version}}<br><b>Build Date:</b> {{buildDate}}<br><br>This app is <a href="https://github.com/austindizzy/prtstatus-android">free and open-source software</a>. Visit the project website at <a href="http://prtstat.us">prtstat.us</a>.<br><br>Made by the hands of a proud Mountaineer.
+    ]]></string>
 </resources>

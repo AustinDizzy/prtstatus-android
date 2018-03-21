@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/status_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/ForestGreen"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/status_icon"
+            android:src="@drawable/running"
+            android:layout_height="75dp"
+            android:layout_width="75dp"
+            android:layout_marginVertical="27dp"
+            android:layout_gravity="center"
+            android:scaleType="fitXY"/>
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textSize="8pt"
+            android:textAlignment="center"
+            android:paddingTop="12dp"
+            android:paddingBottom="28dp"
+            android:layout_margin="16dp"
+            android:text="The PRT is currently running on a normal schedule."/>
+
+        <TextView
+            android:id="@+id/status_updated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textAlignment="center"
+            android:textSize="5pt"
+            android:text="Last updated 3 hours ago"/>
+    </LinearLayout>

@@ -1,0 +1,41 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_header_notifications">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="enable_notifs"
+            android:summary="@string/pref_description_notifications"
+            android:title="@string/pref_title_notifications" />
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/pref_list_notif_types"
+            android:entries="@array/pref_list_notif_types"
+            android:entryValues="@array/pref_list_notif_types"
+            android:key="notif_types"
+            android:title="@string/pref_title_notification_types"
+            android:summary="@string/pref_description_notification_types" />
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/pref_list_stations_titles"
+            android:entries="@array/pref_list_stations_titles"
+            android:entryValues="@array/pref_list_stations_titles"
+            android:key="stations"
+            android:title="@string/pref_title_select_stations"
+            android:summary="@string/pref_summary_select_stations"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_header_other">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="enable_ads"
+            android:title="@string/pref_title_enable_ads"
+            android:summary="@string/pref_description_enable_ads"/>
+        <Preference
+            android:key="reset"
+            android:title="@string/pref_reset_data" />
+        <Preference
+            android:key="about"
+            android:title="@string/pref_about_title" />
+    </PreferenceCategory>
+</PreferenceScreen>

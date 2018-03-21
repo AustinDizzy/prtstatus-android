@@ -1,314 +1,173 @@
 package me.austindizzy.wvuprtstatus.app;
 
-import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
+import org.json.JSONObject;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-/**
- * WVUPRTStatus by AustinDizzy <@AustinDizzy>
- *     7/23/2014.
- */
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends ActionBarActivity {
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    private AppDatabase db;
+    private List<PRTStatus> updates;
 
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    String SENDER_ID = "195209769133";
-
-    GoogleCloudMessaging gcm;
-    SharedPreferences prefs;
-    public static final String PROPERTY_REG_ID = "registration_id";
-    public static final String PROPERTY_APP_VERSION = "appVersion";
-
-    String regId;
-    private Handler UIHandler;
-    private final int scheduleInterval = 5000;
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
-        getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.Gray));
+        Context context = getApplicationContext();
+        db = AppDatabase.getAppDatabase(context);
 
-        if(!checkPlayServices()) {
-            //checkPlayServices() displays "Get Play Services" prompt.
-        } else {
-            gcm = GoogleCloudMessaging.getInstance(this);
-            regId = getRegistrationId(getApplicationContext());
+        initToolbar(context);
+        initStatus(context);
+        updates = db.statusDao().getRecent(System.currentTimeMillis() / 1000);
 
-            if(regId.isEmpty()) {
-                registerInBackground();
-            }
-        }
-
-        if(!isNetworkAvailable()) {
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    R.string.no_network, Toast.LENGTH_SHORT);
-            toast.show();
-        }
-
-        UIHandler = new Handler();
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new StatusAdapter(updates);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        UIHandler.removeCallbacks(UIUpdateScheduler);
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(statusReceiver,
+                new IntentFilter(PRTMessagingService.INTENT_TAG));
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        checkPlayServices();
-        UIUpdateScheduler.run();
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(statusReceiver);
+        AppDatabase.destoryInstance();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         if (id == R.id.action_settings) {
-            //TODO: Maybe settings, maybe not.
-
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    "Settings Coming Soon", Toast.LENGTH_SHORT);
-            toast.show();
-        } else if (id == R.id.action_about) {
-            buildAboutDialog(this).show();
-
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    Runnable UIUpdateScheduler = new Runnable() {
+    private void initStatus(final Context context) {
+        String uri = "https://prtstat.us/api/status";
+        PRTStatus lastStatus = db.statusDao().getLast();
+        if (lastStatus == null) {
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    PRTStatus status = new PRTStatus(response);
+                    db.statusDao().insert(status);
+                    updateStatus(context, status);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // error
+                    Log.d("Reg Error Response", error.getMessage());
+                }
+            });
+            HTTPRequestQueue.getInstance(context).addToRequestQueue(jsonObjectRequest);
+        } else {
+            updateStatus(context, lastStatus);
+        }
+    }
+
+    private BroadcastReceiver statusReceiver = new BroadcastReceiver() {
         @Override
-        public void run() {
-            updateStatus();
-            UIHandler.postDelayed(UIUpdateScheduler, scheduleInterval);
+        public void onReceive(Context context, Intent intent) {
+            try {
+                PRTStatus status = new PRTStatus(intent.getExtras());
+                updates.add(status);
+                adapter.notifyDataSetChanged();
+                updateStatus(context, status);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     };
 
-    private String getRegistrationId(Context context) {
-        final SharedPreferences prefs = getStoredPreferences();
-        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
-        if (registrationId.isEmpty()) {
-            Log.i("Registration", "Registration not found.");
-            return "";
-        }
+    private void updateStatus(Context context, PRTStatus status) {
+        TextView statusText = findViewById(R.id.status_text);
+        statusText.setText(status.getMessage());
 
-        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-        int currentVersion = getAppVersion(context);
-        if (registeredVersion != currentVersion) {
-            Log.i("VERSION", "App version changed.");
-            return "";
-        }
-        return registrationId;
+        int statusColor = ContextCompat.getColor(context, status.IsDown() || status.IsClosed() ? R.color.FireBrick : R.color.ForestGreen);
+        findViewById(R.id.app_bar).setBackgroundColor(statusColor);
+        findViewById(R.id.status_parent).setBackgroundColor(statusColor);
+
+        Drawable src = ContextCompat.getDrawable(context, status.IsDown() || status.IsClosed() ? R.drawable.down : R.drawable.running);
+        ((ImageView) findViewById(R.id.status_icon)).setImageDrawable(src);
+
+        CharSequence since = DateUtils.getRelativeTimeSpanString(status.getTimestamp() * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+        String lastUpdatedMsg = getString(R.string.last_updated);
+        ((TextView)findViewById(R.id.status_updated)).setText(String.format(lastUpdatedMsg, since));
     }
 
-    private SharedPreferences getStoredPreferences(){
-        return getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
-    }
+    private void initToolbar(Context context) {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        AppBarLayout appBarLayout = findViewById(R.id.app_bar);
+        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.toolbar_layout);
+        final LinearLayout statusCont = findViewById(R.id.status_parent);
 
-    private static String getAppVersionName(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException("Could not get package name: " + e);
-        }
-    }
+        float heightDp =  getResources().getDisplayMetrics().heightPixels * 0.8f;
+        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+        lp.height = (int)heightDp;
 
-    private static int getAppVersion(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e){
-            throw new RuntimeException("Could not get package name: " + e);
-        }
-    }
-    private static String getAppBuildDate(Context context) {
-        // credits : Pointer Null @ http://stackoverflow.com/questions/7607165
-        try {
-            ApplicationInfo ai = context.getPackageManager()
-                    .getApplicationInfo(context.getPackageName(), 0);
-            ZipFile zf = new ZipFile(ai.sourceDir);
-            ZipEntry ze = zf.getEntry("classes.dex");
-            long time = ze.getTime();
-            String s = SimpleDateFormat.getInstance().format(new java.util.Date(time));
-            zf.close();
-            return s;
-        } catch (Exception e) {
-            throw new RuntimeException("Could not get build date: " + e);
-        }
-    }
-
-    private final AlertDialog buildAboutDialog(Context context) {
-        AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(context)
-                .setIcon(android.R.drawable.ic_menu_info_details);
-
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View layout = inflater.inflate(R.layout.about_dialog, null);
-
-        TextView aboutMessage = (TextView) layout.findViewById(R.id.about_text);
-        String messageText = context.getString(R.string.about_dialog);
-        String versionName = getAppVersionName(context);
-        messageText = messageText.replace("{versionID}", versionName);
-        String updatedTime = getAppBuildDate(context);
-        messageText = messageText.replace("{buildDate}", updatedTime);
-        if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
-            String gcmID = getStoredPreferences().getString(PROPERTY_REG_ID, "");
-            Log.i("GCMInfo", gcmID);
-            messageText = messageText.replace("{gcmID}", gcmID);
-        }
-        aboutMessage.setText(Html.fromHtml(messageText));
-        aboutMessage.setMovementMethod(LinkMovementMethod.getInstance());
-
-        aboutBuilder.setTitle("About").setPositiveButton("Okay", null);
-        AlertDialog aboutDialog = aboutBuilder.create();
-        aboutDialog.setView(layout, 0, 5, 0, 0);
-        return aboutDialog;
-    }
-
-    private void registerInBackground() {
-        new AsyncTask<Void, Void, String>() {
+        appBarLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.ForestGreen));
+        appBarLayout.setLayoutParams(lp);
+        collapsingToolbarLayout.setExpandedTitleColor(Color.TRANSPARENT);
+        collapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
-            protected String doInBackground(Void... params){
-                String msg;
-                try {
-                    if(gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-                    }
-                    regId = gcm.register(SENDER_ID);
-                    msg = "Successfully registered with GCM. ID = " + regId;
-
-                    HttpClient httpClient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost("https://austindizzy.me/prt/_sandbox/user");
-                    List <NameValuePair> postData = new ArrayList<NameValuePair>();
-                    postData.add(new BasicNameValuePair("regID", regId));
-                    httpPost.setEntity(new UrlEncodedFormEntity(postData, HTTP.UTF_8));
-                    try {
-                        httpClient.execute(httpPost);
-                    } catch (ClientProtocolException e) {
-                        Log.i("ClientProtocolException", e.toString());
-                    } catch (IOException e) {
-                        Log.i("IOException", e.toString());
-                    }
-
-                    storeRegistrationId(getApplicationContext(), regId);
-                } catch (IOException ex){
-                    msg = "Error: " + ex.getMessage();
-                }
-                return msg;
+            public void onOffsetChanged(AppBarLayout appBarLayout1, int verticalOffset) {
+                float scrollPct = Math.abs(verticalOffset / (float) appBarLayout1.getTotalScrollRange());
+                statusCont.setAlpha(1.0f - scrollPct);
             }
-
-            @Override
-            protected void onPostExecute(String msg) {
-                Log.i("REGISTER", msg);
-            }
-        }.execute(null, null, null);
+        });
+        setSupportActionBar(toolbar);
     }
-
-    public void storeRegistrationId(Context context, String regId) {
-        final SharedPreferences prefs = getStoredPreferences();
-        int appVersion = getAppVersion(context);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PROPERTY_REG_ID, regId);
-        editor.putInt(PROPERTY_APP_VERSION, appVersion);
-        editor.apply();
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkConn = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkConn != null && activeNetworkConn.isConnectedOrConnecting();
-    }
-
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                Log.i("PLAY_SERVICES", "This device is not supported.");
-                finish();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    private void updateStatus(){
-        prefs = getStoredPreferences();
-        String prtMessage = prefs.getString("prtMessage", "Unknown");
-        int prtStatus = prefs.getInt("prtStatus", 0);
-        String prtDate = prefs.getString("prtDate", "never");
-
-        TextView prtMessageView = (TextView)this.findViewById(R.id.prtMessage);
-        TextView prtUpdatedView = (TextView)this.findViewById(R.id.updatedTime);
-        ImageView statusIcon = (ImageView)this.findViewById(R.id.statusIcon);
-
-        prtMessageView.setText(prtMessage);
-        prtUpdatedView.setText("Updated " + prtDate);
-
-        if (prtStatus == 1) {
-            getWindow().getDecorView().setBackgroundColor(getResources()
-                    .getColor(R.color.ForestGreen));
-            statusIcon.setImageResource(R.drawable.running);
-        } else if (prtStatus == 0) {
-            getWindow().getDecorView().setBackgroundColor(getResources()
-                    .getColor(R.color.Gray));
-            statusIcon.setImageResource(R.drawable.unknown);
-        } else {
-            getWindow().getDecorView().setBackgroundColor(getResources()
-                    .getColor(R.color.FireBrick));
-            statusIcon.setImageResource(R.drawable.down);
-        }
-    }
-
 }
