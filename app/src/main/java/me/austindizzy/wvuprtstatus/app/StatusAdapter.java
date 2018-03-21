@@ -1,73 +1,108 @@
 package me.austindizzy.wvuprtstatus.app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.util.List;
 
 public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder> {
 
-    List<PRTStatus> updates;
+    private List<PRTStatus> updates;
+    private SharedPreferences prefs;
+
+    private static final int AD_TYPE = 0;
+    private static final int HEADER_TYPE = 1;
+    private static final int UPDATE_TYPE = 2;
+
 
     public StatusAdapter(List<PRTStatus> updates) {
         this.updates = updates;
+        this.updates.add(null);
     }
 
     @Override
     public StatusAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        int layout = viewType == 0 ? R.layout.status_list_header : R.layout.status_list;
+        int layout = 0;
+        if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(parent.getContext());
+        switch (viewType) {
+            case AD_TYPE:
+                layout = prefs.getBoolean("enable_ads", false) ? R.layout.main_adview : R.layout.empty;
+                break;
+            case HEADER_TYPE: layout = R.layout.status_list_header;
+                break;
+            case UPDATE_TYPE: layout = R.layout.status_list;
+                break;
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(StatusAdapter.ViewHolder holder, int position) {
-        if (position == 0) { return; }
-        int truePosition = updates.size() - position - 1;
-        PRTStatus status = updates.get(truePosition);
+        int type = getItemViewType(position);
+        switch (type) {
+            case AD_TYPE:
+                if (prefs.getBoolean("enable_ads", false)) {
+                    AdRequest adRequest = new AdRequest.Builder().build();
+                    if (!BuildConfig.DEBUG) {
+                        holder.bannerAd.setAdUnitId(holder.context.getString(R.string.modpub_main_ad_unit_id));
+                    }
+                    holder.bannerAd.setVisibility(View.VISIBLE);
+                    holder.bannerAd.loadAd(adRequest);
+                }
+                return;
+            case HEADER_TYPE:
+                return;
+            case UPDATE_TYPE:
+                int truePosition = updates.size() - position - 1;
+                PRTStatus status = updates.get(truePosition);
+                int color = ContextCompat.getColor(holder.context,
+                        status.IsDown() || status.IsClosed() ? R.color.FireBrick : R.color.ForestGreen);
 
-        holder.statusText.setText(status.getMessage());
-        Context context = holder.statusText.getContext();
-
-        CharSequence when;
-        long now = System.currentTimeMillis();
-        long timestamp = status.getTimestamp() * 1000;
-        if (now - timestamp > (60*60*24*7)*1000) {
-            when = DateFormat.format("h:mma, M/d/y", timestamp);
-        } else {
-            when = DateUtils.getRelativeTimeSpanString(timestamp, now, DateUtils.SECOND_IN_MILLIS);
+                holder.statusText.setText(status.getMessage());
+                holder.whenText.setText(Converters.timestampToWhen(status.getTimestamp()));
+                ((CardView) holder.itemView).setCardBackgroundColor(color);
+                break;
         }
-        holder.whenText.setText(when);
-
-        int color = ContextCompat.getColor(context, status.IsDown() || status.IsClosed() ? R.color.FireBrick : R.color.ForestGreen);
-        ((CardView) holder.itemView).setCardBackgroundColor(color);
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position == 0 ? 0 : 1;
+        if (position == 0) {
+            return AD_TYPE;
+        } else if (position == 1) {
+            return HEADER_TYPE;
+        }
+        return UPDATE_TYPE;
     }
 
     @Override
     public int getItemCount() {
-        return updates.size();
+        return this.updates.size();
     }
 
-    public class ViewHolder extends  RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView statusText;
         public TextView whenText;
+        public AdView bannerAd;
+        public Context context;
         public ViewHolder(View itemView) {
             super(itemView);
+            context = itemView.getContext();
             statusText = itemView.findViewById(R.id.status_text_list);
             whenText = itemView.findViewById(R.id.status_when_list);
+            bannerAd = itemView.findViewById(R.id.main_ad);
         }
     }
 }

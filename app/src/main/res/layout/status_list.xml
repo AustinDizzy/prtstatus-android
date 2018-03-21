@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
+    android:layout_margin="@dimen/card_margin"
     app:cardCornerRadius="4dp"
     app:cardElevation="2dp"
     app:cardUseCompatPadding="true"
     app:contentPaddingTop="2dp"
-    app:contentPaddingLeft="16dp"
-    app:contentPaddingRight="16dp">
+    app:contentPaddingLeft="@dimen/card_padding"
+    app:contentPaddingRight="@dimen/card_margin">
 
     <TextView
         android:id="@+id/status_when_list"

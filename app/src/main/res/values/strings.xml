@@ -36,6 +36,9 @@
     <string name="pref_title_enable_ads">Enable Advertisements</string>
     <string name="pref_description_enable_ads">By default, the app is ad-free. Turning them on will show a single, small, unobstrusive advertisement directly below the current PRT status, and will help support development efforts.</string>
 
+    <string name="modpub_app_id">ca-app-pub-9151949953714861~3453430320</string>
+    <string name="modpub_main_ad_unit_id">ca-app-pub-9151949953714861/2318998979</string>
+
     <string name="pref_okay">Thanks</string>
     <string name="pref_close">Close</string>
     <string name="pref_about_title">About</string>

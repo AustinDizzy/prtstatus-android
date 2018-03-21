@@ -28,6 +28,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.ads.MobileAds;
 
 import org.json.JSONObject;
 
@@ -35,7 +36,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private AppDatabase db;
     private List<PRTStatus> updates;
@@ -51,7 +51,9 @@ public class MainActivity extends AppCompatActivity {
         initStatus(context);
         updates = db.statusDao().getRecent(System.currentTimeMillis() / 1000);
 
-        recyclerView = findViewById(R.id.recycler_view);
+        MobileAds.initialize(this, getString(R.string.modpub_app_id));
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new StatusAdapter(updates);
         recyclerView.setAdapter(adapter);
