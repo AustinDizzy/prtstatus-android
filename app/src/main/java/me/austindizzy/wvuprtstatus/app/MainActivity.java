@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -20,6 +21,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,9 +29,12 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.ads.MobileAds;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -60,22 +65,59 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        initStatus(getApplicationContext());
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
     protected void onStart() {
-        super.onStart();
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(statusReceiver,
                 new IntentFilter(PRTMessagingService.INTENT_TAG));
+        super.onStart();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(statusReceiver);
         AppDatabase.destoryInstance();
+        super.onStop();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        super.onCreateOptionsMenu(menu);
+
+        String uri = getString(R.string.links_json);
+        final int MENU_LINKS = Menu.FIRST;
+
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, uri, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                try {
+                    SubMenu linksMenu = menu.addSubMenu("PRT Info");
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject link = response.getJSONObject(i);
+                        String title = link.getString("title");
+                        String href = link.getString("link");
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(href));
+                        linksMenu.add(0, MENU_LINKS + i, Menu.NONE, title).setIntent(intent);
+                    }
+                } catch (JSONException err) {
+                    // should do something with this err sometime
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // error
+                Log.d("PRTInfoMenu", error.getMessage());
+            }
+        });
+
+        HTTPRequestQueue.getInstance(this).addToRequestQueue(arrayRequest);
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
