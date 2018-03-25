@@ -42,7 +42,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView.Adapter adapter;
-    private AppDatabase db;
+    public AppDatabase db;
     private List<PRTStatus> updates;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,30 +137,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void initStatus(final Context context) {
-        String uri = "https://prtstat.us/api/status";
-        PRTStatus lastStatus = db.statusDao().getLast();
-        if (lastStatus == null) {
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    PRTStatus status = new PRTStatus(response);
-                    db.statusDao().insert(status);
-                    updateStatus(context, status);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    // error
-                    Log.d("Reg Error Response", error.getMessage());
-                }
-            });
-            HTTPRequestQueue.getInstance(context).addToRequestQueue(jsonObjectRequest);
-        } else {
-            updateStatus(context, lastStatus);
-        }
-    }
-
     private BroadcastReceiver statusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -189,6 +165,30 @@ public class MainActivity extends AppCompatActivity {
         CharSequence since = DateUtils.getRelativeTimeSpanString(status.getTimestamp() * 1000, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         String lastUpdatedMsg = getString(R.string.last_updated);
         ((TextView)findViewById(R.id.status_updated)).setText(String.format(lastUpdatedMsg, since));
+    }
+
+    private void initStatus(final Context context) {
+        String uri = getString(R.string.status_api);
+        PRTStatus lastStatus = db.statusDao().getLast();
+        if (lastStatus == null) {
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    PRTStatus status = new PRTStatus(response);
+                    db.statusDao().insert(status);
+                    updateStatus(context, status);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // error
+                    Log.d("Reg Error Response", error.getMessage());
+                }
+            });
+            HTTPRequestQueue.getInstance(context).addToRequestQueue(jsonObjectRequest);
+        } else {
+            updateStatus(context, lastStatus);
+        }
     }
 
     private void initToolbar(Context context) {

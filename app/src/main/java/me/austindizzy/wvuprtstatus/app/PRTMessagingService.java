@@ -26,7 +26,7 @@ import java.util.Set;
 public class PRTMessagingService extends FirebaseMessagingService {
 
     final static String TAG = "PRT Status";
-    final static String INTENT_TAG = "status update -" + TAG;
+    final static String INTENT_TAG = "STATUS_UPDATE";
     private SharedPreferences prefs;
 
     @Override
@@ -39,13 +39,43 @@ public class PRTMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "New Message: " + data);
 
         Intent intent = new Intent(INTENT_TAG);
-        intent.putExtra("status", Integer.parseInt(data.get("status")));
-        intent.putExtra("timestamp", Long.parseLong(data.get("timestamp")));
-        intent.putExtra("message", data.get("message"));
-        intent.putExtra("bussesDispatched", data.get("bussesDispatched").equals("true"));
-        intent.putExtra("stations", data.get("stations").split(","));
+
+        for (String key : data.keySet()) {
+            String val = data.get(key);
+            switch (key) {
+                case "status":
+                    intent.putExtra(key, Integer.parseInt(val));
+                    break;
+                case "timestamp":
+                    intent.putExtra(key, Long.parseLong(val));
+                    break;
+                case "bussesDispatched":
+                    intent.putExtra(key, val.equals("true"));
+                    break;
+                case "stations":
+                    intent.putExtra(key, val.split(","));
+                    break;
+                case "temperature":
+                case "humidity":
+                case "precip1hr":
+                case "precipToday":
+                case "windSpeed":
+                    intent.putExtra(key, Double.parseDouble(val));
+                    break;
+                case "message":
+                case "weather":
+                case "conditions":
+                case "windDir":
+                    intent.putExtra(key, val);
+                    break;
+                default:
+                    Log.i("PRTMsg", "untracked key \"" + key + "\"");
+                    break;
+            }
+        }
 
         PRTStatus status = new PRTStatus(intent.getExtras());
+        Weather weather = new Weather(intent.getExtras());
         broadcastManager.sendBroadcast(intent);
         if (shouldNotify(status)) {
             Bitmap mBitmap;
@@ -81,6 +111,7 @@ public class PRTMessagingService extends FirebaseMessagingService {
         }
 
         db.statusDao().insert(status);
+        db.weatherDao().insert(weather);
     }
 
     private boolean shouldNotify(PRTStatus status) {

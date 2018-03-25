@@ -11,15 +11,18 @@ import android.content.Context;
  * Created by Austin on 3/2/2018.
  */
 
-@Database(entities = {PRTStatus.class}, version = 1)
+@Database(entities = {PRTStatus.class, Weather.class}, version = 1)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase mDB;
     public abstract StatusDao statusDao();
+    public abstract WeatherDao weatherDao();
 
     public static AppDatabase getAppDatabase(Context context) {
         if (mDB == null) {
+
             mDB = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "wvuprtstatus")
+                    .addCallback()
                     .allowMainThreadQueries()
                     .build();
         }

@@ -5,6 +5,9 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="city_name">Morgantown</string>
+    <string name="weather_credits">data provided by Weather Underground</string>
+
     <string name="pref_header_general">General</string>
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_header_other">Other</string>
@@ -36,6 +39,9 @@
     <string name="pref_title_enable_ads">Enable Advertisements</string>
     <string name="pref_description_enable_ads">By default, the app is ad-free. Turning them on will show a single, small, unobstrusive advertisement directly below the current PRT status, and will help support development efforts.</string>
 
+    <string name="status_api">https://prtstat.us/api/status</string>
+    <string name="weather_api">https://prtstat.us/api/weather</string>
+    <string name="weather_uri">http://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=KWVMORGA25</string>
     <string name="links_json">https://storage.googleapis.com/wvuprtstatus-ec646.appspot.com/links.json</string>
     <string name="modpub_app_id">ca-app-pub-9151949953714861~3453430320</string>
     <string name="modpub_main_ad_unit_id">ca-app-pub-9151949953714861/2318998979</string>
