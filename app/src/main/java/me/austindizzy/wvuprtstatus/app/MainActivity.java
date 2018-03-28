@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONArray response) {
                 try {
-                    SubMenu linksMenu = menu.addSubMenu("PRT Info");
+                    SubMenu linksMenu = menu.addSubMenu(getString(R.string.action_infolinks));
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject link = response.getJSONObject(i);
                         String title = link.getString("title");
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                         linksMenu.add(0, MENU_LINKS + i, Menu.NONE, title).setIntent(intent);
                     }
                 } catch (JSONException err) {
-                    // should do something with this err sometime
+                    // TODO: something with err
                 }
             }
         }, new Response.ErrorListener() {
