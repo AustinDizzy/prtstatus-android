@@ -82,7 +82,11 @@ public class Weather {
     public String toString() {
         String msg = getConditions();
         if (getWindSpeed() > 0) {
-            msg += String.format(" - %dMPH %s winds", getWindSpeed(), getWindDir());
+            if (getWindSpeed() == (long) getWindSpeed()) {
+                msg += String.format(", %dMPH %s winds", (long)getWindSpeed(), getWindDir());
+            } else {
+                msg += String.format(", %.1fMPH %s winds", getWindSpeed(), getWindDir());
+            }
         }
         return msg;
     }

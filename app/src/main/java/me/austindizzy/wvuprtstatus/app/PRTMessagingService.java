@@ -60,6 +60,8 @@ public class PRTMessagingService extends FirebaseMessagingService {
                 case "precip1hr":
                 case "precipToday":
                 case "windSpeed":
+                case "visibility":
+                case "feelsLike":
                     intent.putExtra(key, Double.parseDouble(val));
                     break;
                 case "message":
@@ -75,7 +77,7 @@ public class PRTMessagingService extends FirebaseMessagingService {
         }
 
         PRTStatus status = new PRTStatus(intent.getExtras());
-        Weather weather = new Weather(intent.getExtras());
+        // Weather weather = new Weather(intent.getExtras());
         broadcastManager.sendBroadcast(intent);
         if (shouldNotify(status)) {
             Bitmap mBitmap;
@@ -111,7 +113,9 @@ public class PRTMessagingService extends FirebaseMessagingService {
         }
 
         db.statusDao().insert(status);
-        db.weatherDao().insert(weather);
+
+        // don't store weather for now, until we have a real need for it
+        //db.weatherDao().insert(weather);
     }
 
     private boolean shouldNotify(PRTStatus status) {
