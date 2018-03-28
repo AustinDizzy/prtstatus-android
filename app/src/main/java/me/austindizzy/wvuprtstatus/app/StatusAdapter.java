@@ -76,17 +76,14 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     @Override
     public void onBindViewHolder(StatusAdapter.ViewHolder holder, int position) {
         int type = getItemViewType(position);
+        if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(holder.context);
         switch (type) {
             case AD_TYPE:
                 if (prefs.getBoolean("enable_ads", false) && holder.bannerAd != null) {
                     AdRequest adRequest = new AdRequest.Builder().build();
-                    if (!BuildConfig.DEBUG) {
-                        holder.bannerAd.setAdUnitId(holder.context.getString(R.string.modpub_main_ad_unit_id));
-                    }
-                    holder.bannerAd.setVisibility(View.VISIBLE);
                     holder.bannerAd.loadAd(adRequest);
                 }
-                return;
+                break;
             case WEATHER_TYPE:
                 fetchWeather(holder);
                 break;
