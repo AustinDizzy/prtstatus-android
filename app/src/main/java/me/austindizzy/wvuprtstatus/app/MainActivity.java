@@ -30,7 +30,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.ads.MobileAds;
 
 import org.json.JSONArray;
@@ -41,9 +40,17 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     public AppDatabase db;
-    private List<PRTStatus> updates;
+
+    public final static String STATUS_UPDATE = "status_update";
+
+    private void setAdapter(List<PRTStatus> updates) {
+        adapter = new StatusAdapter(updates);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,29 +59,26 @@ public class MainActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         db = AppDatabase.getAppDatabase(context);
 
-        initToolbar(context);
-        initStatus(context);
-        updates = db.statusDao().getRecent(System.currentTimeMillis() / 1000);
-
-        MobileAds.initialize(this, getString(R.string.modpub_app_id));
-
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new StatusAdapter(updates);
-        recyclerView.setAdapter(adapter);
+
+        initToolbar(context);
+        touchStatus(context);
+
+        MobileAds.initialize(context, getString(R.string.modpub_app_id));
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        initStatus(getApplicationContext());
+        touchStatus(getApplicationContext());
         adapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onStart() {
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(statusReceiver,
-                new IntentFilter(PRTMessagingService.INTENT_TAG));
+                new IntentFilter(MainActivity.STATUS_UPDATE));
         super.onStart();
     }
 
@@ -140,13 +144,16 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver statusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            try {
-                PRTStatus status = new PRTStatus(intent.getExtras());
-                updates.add(status);
-                adapter.notifyDataSetChanged();
-                updateStatus(context, status);
-            } catch (Exception e) {
-                e.printStackTrace();
+            String action = intent != null && intent.getAction() != null ? intent.getAction() : STATUS_UPDATE;
+            doAction(context, action);
+        }
+
+        protected void doAction(Context context, String action) {
+            switch (action) {
+                case STATUS_UPDATE:
+                default:
+                    touchStatus(context);
+                    break;
             }
         }
     };
@@ -167,28 +174,11 @@ public class MainActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.status_updated)).setText(String.format(lastUpdatedMsg, since));
     }
 
-    private void initStatus(final Context context) {
-        String uri = getString(R.string.status_api);
+    private void touchStatus(Context context) {
         PRTStatus lastStatus = db.statusDao().getLast();
-        if (lastStatus == null) {
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    PRTStatus status = new PRTStatus(response);
-                    db.statusDao().insert(status);
-                    updateStatus(context, status);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    // error
-                    Log.d("Reg Error Response", error.getMessage());
-                }
-            });
-            HTTPRequestQueue.getInstance(context).addToRequestQueue(jsonObjectRequest);
-        } else {
-            updateStatus(context, lastStatus);
-        }
+        if (lastStatus != null) updateStatus(context, lastStatus);
+        List<PRTStatus> recentUpdates = db.statusDao().getRecent(System.currentTimeMillis() / 1000);
+        setAdapter(recentUpdates);
     }
 
     private void initToolbar(Context context) {

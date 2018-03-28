@@ -39,8 +39,8 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
 
 
     public StatusAdapter(List<PRTStatus> updates) {
+        if (updates != null && updates.size() > 0) updates.remove(0);
         this.updates = updates;
-        this.updates.add(null);
     }
 
     @Override
@@ -88,13 +88,19 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
                 fetchWeather(holder);
                 break;
             case UPDATE_TYPE:
-                PRTStatus status = updates.get(updates.size() - 1 - position);
+                PRTStatus status = updates.get(position - 3);
                 setStatus(holder, status);
                 break;
             case HEADER_TYPE:
             default:
                 break;
         }
+    }
+
+    public void setData(List<PRTStatus> list) {
+        if (list != null && list.size() > 0) list.remove(0);
+        this.updates = list;
+        notifyDataSetChanged();
     }
 
     private void setWeather(ViewHolder holder, Weather weather) {
@@ -191,7 +197,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return this.updates.size();
+        return this.updates.size() + UPDATE_TYPE;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -206,8 +212,8 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
             super(itemView);
             context = itemView.getContext();
             statusText = itemView.findViewById(R.id.status_text_list);
-            whenText = itemView.findViewById(R.id.status_when_list);
             bannerAd = itemView.findViewById(R.id.main_ad);
+            whenText = itemView.findViewById(R.id.status_when_list);
             temperatureText = itemView.findViewById(R.id.tempText);
             conditionsText = itemView.findViewById(R.id.conditionsText);
             weatherIcon = itemView.findViewById(R.id.weatherIcon);

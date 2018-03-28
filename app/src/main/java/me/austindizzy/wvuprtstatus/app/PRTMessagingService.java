@@ -25,8 +25,7 @@ import java.util.Set;
 
 public class PRTMessagingService extends FirebaseMessagingService {
 
-    final static String TAG = "PRT Status";
-    final static String INTENT_TAG = "STATUS_UPDATE";
+    final static String TAG = "PRTStatus";
     private SharedPreferences prefs;
 
     @Override
@@ -38,7 +37,7 @@ public class PRTMessagingService extends FirebaseMessagingService {
         Map<String, String> data = msg.getData();
         Log.d(TAG, "New Message: " + data);
 
-        Intent intent = new Intent(INTENT_TAG);
+        Intent intent = new Intent(MainActivity.STATUS_UPDATE);
 
         for (String key : data.keySet()) {
             String val = data.get(key);
