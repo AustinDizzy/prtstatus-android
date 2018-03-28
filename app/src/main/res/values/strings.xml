@@ -15,7 +15,8 @@
 
     <string name="pref_title_notifications">Enable Notifications</string>
     <string name="pref_description_notifications">Enable notifications on any system changes</string>
-    <string name="notif_channel_desc">PRT Status updates and events</string>
+    <string name="notif_channel_name">PRT Status Updates</string>
+    <string name="notif_channel_desc">PRT Status updates and miscellaneous events</string>
 
     <string name="pref_title_notification_types">Select Notification Types</string>
     <string name="pref_description_notification_types">Only the following types of service events will trigger a notification.</string>

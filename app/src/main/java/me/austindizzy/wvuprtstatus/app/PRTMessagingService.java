@@ -75,46 +75,61 @@ public class PRTMessagingService extends FirebaseMessagingService {
             }
         }
 
-        PRTStatus status = new PRTStatus(intent.getExtras());
-        // Weather weather = new Weather(intent.getExtras());
+        PRTStatus status = null;
+        //Weather weather = null;
+        if (intent.getExtras() != null) {
+            status = new PRTStatus(intent.getExtras());
+            // weather = new Weather(intent.getExtras());
+        }
+
         broadcastManager.sendBroadcast(intent);
-        if (shouldNotify(status)) {
-            Bitmap mBitmap;
-            if (status.getStatus() == 1) {
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.color.ForestGreen);
-            } else {
-                mBitmap = BitmapFactory.decodeResource(getResources(), R.color.FireBrick);
-            }
-            final NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender().setBackground(mBitmap);
-            String notificationMsg = "The PRT is " + (status.getStatus() == 1 ? "UP" : (status.IsClosed() ? "CLOSED" : "DOWN"));
-            Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, 0);
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationCompat.Builder mBuilder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                mBuilder = new NotificationCompat.Builder(this, TAG);
-                NotificationChannel channel = new NotificationChannel(TAG, TAG, NotificationManager.IMPORTANCE_DEFAULT);
-                channel.setDescription(getString(R.string.notif_channel_desc));
-                mNotificationManager.createNotificationChannel(channel);
-            } else {
-                 mBuilder = new NotificationCompat.Builder(this);
-            }
-            mBuilder = mBuilder.setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(notificationMsg)
-                    .setContentText(status.getMessage())
-                    .extend(wearableExtender)
-                    .setWhen(status.getTimestamp() * 1000)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setCategory(Notification.CATEGORY_EVENT)
-                    .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
-                    .setContentIntent(contentIntent);
-            mNotificationManager.notify(1975, mBuilder.build());
+        if (status != null && shouldNotify(status)) {
+            sendNotification(status);
         }
 
         db.statusDao().insert(status);
 
         // don't store weather for now, until we have a real need for it
         //db.weatherDao().insert(weather);
+    }
+
+    private void sendNotification(PRTStatus status) {
+        int color = status.IsOpen() ? R.color.ForestGreen : R.color.FireBrick;
+        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), color);
+        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender().setBackground(mBitmap);
+
+        String notificationMsg = "The PRT is " + (status.IsOpen() ? "UP" : (status.IsClosed() ? "CLOSED" : "DOWN"));
+        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, 0);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(TAG, getString(R.string.notif_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription(getString(R.string.notif_channel_desc));
+            channel.setLightColor(color);
+            if (mNotificationManager != null)
+                mNotificationManager.createNotificationChannel(channel);
+        }
+
+        int colorRes = getResources().getColor(color);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, TAG)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setColor(colorRes)
+                .setContentTitle(notificationMsg)
+                .setContentText(status.getMessage())
+                .extend(wearableExtender)
+                .setWhen(status.getTimestamp() * 1000)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
+                .setContentIntent(contentIntent);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) mBuilder.setLights(colorRes, 500, 500);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) mBuilder = mBuilder.setCategory(Notification.CATEGORY_EVENT);
+
+        if (mNotificationManager != null)
+            mNotificationManager.notify(1975, mBuilder.build());
     }
 
     private boolean shouldNotify(PRTStatus status) {
