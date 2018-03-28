@@ -165,7 +165,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             TextView aboutMsg = layout.findViewById(R.id.about_text);
             String msgText = getString(R.string.pref_about_text);
             msgText = msgText.replace("{{version}}", BuildConfig.VERSION_NAME)
-                .replace("{{buildDate}}", DateFormat.format("M/d/y @ HH:m:s", BuildConfig.TIMESTAMP));
+                .replace("{{buildDate}}", DateFormat.format("M/d/y @ HH:mm:ss", BuildConfig.TIMESTAMP));
             aboutMsg.setText(Html.fromHtml(msgText));
             aboutMsg.setMovementMethod(LinkMovementMethod.getInstance());
 
