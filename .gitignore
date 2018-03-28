@@ -35,6 +35,7 @@ build
 *.ipr
 *~
 *.swp
+app/release
 
 # Firebase API keys
 google-services.json
