@@ -1,5 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
+        android:key="notif_cat"
         android:title="@string/pref_header_notifications">
 
         <SwitchPreference
@@ -7,6 +8,11 @@
             android:key="enable_notifs"
             android:summary="@string/pref_description_notifications"
             android:title="@string/pref_title_notifications" />
+
+        <Preference
+            android:key="oreo_cat"
+            android:title="@string/pref_title_notification_style"
+            android:summary="@string/pref_summary_notification_style"/>
 
         <MultiSelectListPreference
             android:defaultValue="@array/pref_list_notif_types"

@@ -36,7 +36,12 @@
         <item>Medical</item>
     </string-array>
 
+    <string name="pref_title_notification_style">Notification Style</string>
+    <string name="pref_summary_notification_style">Users with Android O (8.0+) can directly edit style of notifications in the Settings app.</string>
+
     <string name="pref_reset_data">Clear Stored Data</string>
+    <string name="pref_confirm_title">Delete Local Data</string>
+    <string name="pref_confirm_msg">This will remove all locally stored cached status updates, restart the app, and reload the local database with the previous 10 events. Are you sure you wish to do this?</string>
 
     <string name="pref_title_enable_ads">Enable Advertisements</string>
     <string name="pref_description_enable_ads">By default, the app is ad-free. Turning them on will show a single, small, unobstrusive advertisement directly below the current PRT status, and will help support development efforts.</string>

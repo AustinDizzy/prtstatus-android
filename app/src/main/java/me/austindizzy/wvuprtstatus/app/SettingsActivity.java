@@ -2,13 +2,17 @@ package me.austindizzy.wvuprtstatus.app;
 
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.TwoStatePreference;
+import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
@@ -67,15 +71,47 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setHasOptionsMenu(true);
 
             final FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(getActivity());
-
             TwoStatePreference enableNotifs = ((TwoStatePreference)findPreference("enable_notifs"));
-            findPreference("notif_types").setEnabled(enableNotifs.isChecked());
-            findPreference("stations").setEnabled(enableNotifs.isChecked());
+            Preference notifCatStyleBtn = findPreference("oreo_cat");
+
+            pollNotifEnabled(enableNotifs.isChecked());
             enableNotifs.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    findPreference("notif_types").setEnabled(o.equals(true));
-                    findPreference("stations").setEnabled(o.equals(true));
+                    pollNotifEnabled(o.equals(true));
+                    return true;
+                }
+            });
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                ((PreferenceCategory) findPreference("notif_cat")).removePreference(notifCatStyleBtn);
+            } else {
+                notifCatStyleBtn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    @TargetApi(Build.VERSION_CODES.O)
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, getContext().getPackageName())
+                                .putExtra(Settings.EXTRA_CHANNEL_ID, PRTMessagingService.TAG);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
+            }
+
+            Preference clearBtn = findPreference("reset");
+            clearBtn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(final Preference preference) {
+                    new AlertDialog.Builder(preference.getContext())
+                            .setTitle(getString(R.string.pref_confirm_title))
+                            .setMessage(getString(R.string.pref_confirm_msg))
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    murderApplication(preference.getContext());
+                                }
+                            }).setNegativeButton(android.R.string.no, null).show();
                     return true;
                 }
             });
@@ -88,8 +124,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     return true;
                 }
             });
+        }
 
+        private void murderApplication(Context context) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                ActivityManager manager = ((ActivityManager)context.getSystemService(ACTIVITY_SERVICE));
+                if (manager != null) manager.clearApplicationUserData();
+            } else {
+                try {
+                    Runtime.getRuntime().exec("pm clear " + context.getPackageName());
+                } catch (Exception e) {
+                    // TODO: something with e
+                }
+            }
+        }
 
+        private void pollNotifEnabled(boolean b) {
+            String k[] = {"notif_types", "stations", "oreo_cat"};
+            for (String s : k) findPreference(s).setEnabled(b);
         }
 
         @Override
