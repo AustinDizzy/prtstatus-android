@@ -21,7 +21,7 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleTextAppearance="@style/TextAppearance.Design.CollapsingToolbar.Expanded"
-            app:layout_scrollFlags="scroll|snap">
+            app:layout_scrollFlags="scroll|snap|enterAlwaysCollapsed">
 
             <include layout="@layout/status_layout" />
 
