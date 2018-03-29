@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -36,9 +38,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
+
+    private SharedPreferences prefs;
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -58,11 +64,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Context context = getApplicationContext();
         db = AppDatabase.getAppDatabase(context);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         initToolbar(context);
+        fetchLinks(context);
         touchStatus(context);
 
         MobileAds.initialize(context, getString(R.string.modpub_app_id));
@@ -93,37 +101,63 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         super.onCreateOptionsMenu(menu);
-
-        String uri = getString(R.string.links_json);
-        final int MENU_LINKS = Menu.FIRST;
-
-        JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, uri, null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                try {
-                    SubMenu linksMenu = menu.addSubMenu(getString(R.string.action_infolinks));
-                    for (int i = 0; i < response.length(); i++) {
-                        JSONObject link = response.getJSONObject(i);
-                        String title = link.getString("title");
-                        String href = link.getString("link");
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(href));
-                        linksMenu.add(0, MENU_LINKS + i, Menu.NONE, title).setIntent(intent);
-                    }
-                } catch (JSONException err) {
-                    // TODO: something with err
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // error
-                Log.d("PRTInfoMenu", error.getMessage());
-            }
-        });
-
-        HTTPRequestQueue.getInstance(this).addToRequestQueue(arrayRequest);
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        initLinks(menu);
         return true;
+    }
+
+    private void fetchLinks(Context context) {
+        final SharedPreferences.Editor editor = prefs.edit();
+        long interval = (60 * 60 * 24) * 14 * 1000;
+        long lastUpdate = prefs.getLong("lastLinkUpdate", 0);
+        if (lastUpdate < System.currentTimeMillis() - interval) {
+            String uri = getString(R.string.links_json);
+            Log.i("PRTLinks", "updating links from " + uri);
+            JsonArrayRequest arrayRequest = new JsonArrayRequest(Request.Method.GET, uri, null, new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray response) {
+                    try {
+                        Set<String> links = new HashSet<>();
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject link = response.getJSONObject(i);
+                            String title = link.getString("title");
+                            String href = link.getString("link");
+                            links.add(title + "|" + href);
+                        }
+                        editor.putStringSet("linksData", links);
+                        editor.putLong("lastLinkUpdate", System.currentTimeMillis());
+                        editor.apply();
+                    } catch (JSONException err) {
+                        // TODO: something with err
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // error
+                    Log.d("PRTLinks", error.getMessage());
+                }
+            });
+            HTTPRequestQueue.getInstance(context).addToRequestQueue(arrayRequest);
+        }
+    }
+
+    private void initLinks(Menu menu) {
+        Set<String> links = prefs.getStringSet("linksData", null);
+        String[] s;
+        int i = 0;
+        Intent intent;
+        if (links != null) {
+            SubMenu linksMenu = menu.addSubMenu(getString(R.string.action_infolinks));
+            for (String link : links) {
+                s = link.split("\\|");
+                Log.i("PRTLinks", "adding link: " + s[0] + " " + s[1]);
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s[1]));
+                linksMenu.add(i, Menu.FIRST + (i++), Menu.NONE, s[0]).setIntent(intent);
+            }
+        } else {
+            fetchLinks(this);
+        }
     }
 
     @Override
