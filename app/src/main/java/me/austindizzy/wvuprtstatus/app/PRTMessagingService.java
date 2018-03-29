@@ -117,7 +117,6 @@ public class PRTMessagingService extends FirebaseMessagingService {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setColor(colorRes)
                 .setContentTitle(notificationMsg)
-                .setContentText(status.getMessage())
                 .extend(wearableExtender)
                 .setWhen(status.getTimestamp() * 1000)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -125,7 +124,14 @@ public class PRTMessagingService extends FirebaseMessagingService {
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
                 .setContentIntent(contentIntent);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) mBuilder.setLights(colorRes, 500, 500);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            NotificationCompat.Style style = new NotificationCompat.BigTextStyle().bigText(status.getMessage());
+            mBuilder.setStyle(style);
+        } else {
+            mBuilder = mBuilder.setContentText(status.getMessage());
+        }
+
+         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) mBuilder.setLights(colorRes, 500, 500);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) mBuilder = mBuilder.setCategory(Notification.CATEGORY_EVENT);
 
         if (mNotificationManager != null)
