@@ -148,7 +148,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
         holder.weatherIcon.setImageResource(icon);
     }
 
-    private void setStatus(ViewHolder holder, PRTStatus status) {
+    private void setStatus(final ViewHolder holder, PRTStatus status) {
         if (status == null) { return; }
         int color = ContextCompat.getColor(holder.context,
                 status.IsDown() || status.IsClosed() ? R.color.FireBrick : R.color.ForestGreen);
@@ -156,6 +156,14 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
         holder.statusText.setText(status.getMessage());
         holder.whenText.setText(Converters.timestampToWhen(status.getTimestamp()));
         ((CardView) holder.itemView).setCardBackgroundColor(color);
+
+        holder.item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                holder.statusText.setMaxLines(holder.expandable ? 2 : 20);
+                holder.expandable = !holder.expandable;
+            }
+        });
     }
 
     private void fetchWeather(final ViewHolder holder) {
@@ -208,8 +216,11 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
         private TextView temperatureText;
         private TextView conditionsText;
         private ImageView weatherIcon;
+        private View item;
+        private boolean expandable;
         private ViewHolder(View itemView) {
             super(itemView);
+            item = itemView;
             context = itemView.getContext();
             statusText = itemView.findViewById(R.id.status_text_list);
             bannerAd = itemView.findViewById(R.id.main_ad);

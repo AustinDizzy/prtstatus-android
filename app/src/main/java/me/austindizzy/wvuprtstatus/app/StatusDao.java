@@ -10,7 +10,7 @@ import java.util.List;
 @Dao
 public interface StatusDao {
 
-    @Query("SELECT * FROM updates WHERE timestamp between (:now-(60*60*24*7)) and :now ORDER BY timestamp DESC LIMIT 15")
+    @Query("SELECT * FROM updates WHERE timestamp between (:now-(60*60*24*7)) and :now ORDER BY timestamp DESC LIMIT 11")
     List<PRTStatus> getRecent(long now);
 
     @Query("SELECT * FROM updates ORDER BY timestamp DESC LIMIT 1")
