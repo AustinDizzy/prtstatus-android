@@ -171,6 +171,11 @@ public class MainActivity extends AppCompatActivity {
             Intent settings = new Intent(this, SettingsActivity.class);
             startActivity(settings);
             return true;
+        } else if (id == R.id.call_prt) {
+            String num = getString(R.string.prt_number);
+            Intent call = new Intent().setAction(Intent.ACTION_DIAL)
+                    .setData(Uri.parse("tel:"+num));
+            startActivity(call);
         }
         return super.onOptionsItemSelected(item);
     }

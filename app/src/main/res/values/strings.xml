@@ -53,6 +53,8 @@
     <string name="modpub_app_id">ca-app-pub-9151949953714861~3453430320</string>
     <string name="modpub_main_ad_unit_id">ca-app-pub-9151949953714861/2318998979</string>
 
+    <string name="prt_number">3042935011</string>
+
     <string name="pref_okay">Thanks</string>
     <string name="pref_close">Close</string>
     <string name="pref_about_title">About</string>
