@@ -18,7 +18,6 @@ import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.view.View;
@@ -154,13 +153,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
 
-        private final AlertDialog buildAboutDialog(Context context) {
+        final AlertDialog buildAboutDialog(Context context) {
             AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(context)
                     .setPositiveButton(getString(R.string.pref_okay), null)
                     .setNegativeButton(getString(R.string.pref_close), null);
 
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View layout = inflater.inflate(R.layout.about_dialog, null);
+            View layout = View.inflate(context, R.layout.about_dialog, null);
 
             TextView aboutMsg = layout.findViewById(R.id.about_text);
             String msgText = getString(R.string.pref_about_text);

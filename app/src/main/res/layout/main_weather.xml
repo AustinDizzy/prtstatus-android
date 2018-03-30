@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/weather_main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -28,14 +27,14 @@
 
             <ImageView
                 android:id="@+id/weatherIcon"
-                android:layout_width="62dp"
+                android:layout_width="75dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_margin="@dimen/card_margin"
                 android:layout_weight="0"
                 android:adjustViewBounds="true"
                 android:cropToPadding="true"
-                android:scaleType="centerInside" />
+                android:scaleType="centerInside"
+                android:contentDescription="@string/weather_img_desc"/>
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -48,19 +47,20 @@
                     android:id="@+id/textView8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
                     android:singleLine="true"
                     android:text="@string/city_name"
-                    android:textAlignment="viewStart"
-                    android:textAppearance="@android:style/TextAppearance.Material.Title"
-                    android:textSize="16sp" />
+                    android:layout_gravity="start"
+                    android:textSize="16sp"
+                    android:textColor="#333"
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:id="@+id/conditionsText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:text="TextView" />
+                    android:textColor="#333"
+                    android:text="@string/weather_cond_text" />
             </LinearLayout>
 
             <TextView
@@ -69,10 +69,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="0"
-                android:text="TextView"
+                android:text="@string/weather_temp_text"
                 android:textAlignment="center"
-                android:textAppearance="@android:style/TextAppearance.Material.Title"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:textColor="#333"
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
@@ -82,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="@string/weather_credits"
-            android:textAlignment="textEnd"
+            android:gravity="end"
             android:textSize="10sp"
             android:textStyle="italic" />
     </LinearLayout>

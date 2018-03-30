@@ -10,7 +10,7 @@ public class HTTPRequestQueue {
 
     private static HTTPRequestQueue mInstance;
     private RequestQueue mRequestQueue;
-    private static Context mCtx;
+    private Context mCtx;
 
     private HTTPRequestQueue(Context context) {
         mCtx = context;

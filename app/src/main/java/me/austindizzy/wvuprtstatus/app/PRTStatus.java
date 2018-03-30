@@ -54,7 +54,7 @@ public class PRTStatus {
             setStations(stations.toArray(new String[stationsArr.length()]));
             setBussesDispatched(jsonObj.getBoolean("bussesDispatched"));
         } catch (JSONException err) {
-
+            //TODO: something with err
         }
     }
 

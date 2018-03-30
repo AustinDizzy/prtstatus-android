@@ -25,13 +25,13 @@ public class Converters {
 
     @TypeConverter
     public String fromStringArr(String[] arr) {
-        if (arr == null) {
+        if (arr == null || arr.length == 0) {
             return "";
         }
-        String s = arr[0];
-        for(int i = 1; i < arr.length; i++) {
-            s += "," + arr[i];
+        StringBuilder s = new StringBuilder();
+        for(int i = 0; i < arr.length; i++) {
+            s.append(arr[i]);
         }
-        return s;
+        return s.toString();
     }
 }

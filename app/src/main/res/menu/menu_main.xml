@@ -5,7 +5,7 @@
     <item
         android:id="@+id/call_prt"
         android:orderInCategory="50"
-        android:title="Call PRT Support"
+        android:title="@string/action_call"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_settings"

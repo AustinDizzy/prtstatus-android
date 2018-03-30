@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -37,14 +38,14 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     private static final int HEADER_TYPE = 2;
     private static final int UPDATE_TYPE = 3;
 
-
-    public StatusAdapter(List<PRTStatus> updates) {
+    StatusAdapter(List<PRTStatus> updates) {
         if (updates != null && updates.size() > 0) updates.remove(0);
         this.updates = updates;
     }
 
     @Override
-    public StatusAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public StatusAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout = 0;
         if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(parent.getContext());
         switch (viewType) {
@@ -59,22 +60,33 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
                 break;
         }
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
-        if (viewType == WEATHER_TYPE) {
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Context context = view.getContext();
-                    final String href = context.getString(R.string.weather_uri);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(href));
-                    context.startActivity(intent);
-                }
-            });
+        ViewHolder holder = new ViewHolder(view);
+
+        View.OnClickListener listener;
+        switch (viewType) {
+            case WEATHER_TYPE:
+                listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Context context = view.getContext();
+                        final String href = context.getString(R.string.weather_uri);
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(href));
+                        context.startActivity(intent);
+                    }
+                };
+                break;
+                default:
+                    listener = null;
         }
-        return new ViewHolder(view);
+        if (listener != null) view.setOnClickListener(listener);
+
+        return holder;
     }
 
+
+
     @Override
-    public void onBindViewHolder(StatusAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull StatusAdapter.ViewHolder holder, int position) {
         int type = getItemViewType(position);
         if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(holder.context);
         switch (type) {

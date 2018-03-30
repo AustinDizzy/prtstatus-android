@@ -146,13 +146,12 @@ public class MainActivity extends AppCompatActivity {
         Set<String> links = prefs.getStringSet("linksData", null);
         String[] s;
         int i = 0;
-        Intent intent;
         if (links != null) {
             SubMenu linksMenu = menu.addSubMenu(getString(R.string.action_infolinks));
             for (String link : links) {
                 s = link.split("\\|");
                 Log.i("PRTLinks", "adding link: " + s[0] + " " + s[1]);
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s[1]));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s[1]));
                 linksMenu.add(i, Menu.FIRST + (i++), Menu.NONE, s[0]).setIntent(intent);
             }
         } else {

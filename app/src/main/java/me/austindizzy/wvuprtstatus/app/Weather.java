@@ -3,12 +3,12 @@ package me.austindizzy.wvuprtstatus.app;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Locale;
 
 @Entity(tableName = "weather")
 public class Weather {
@@ -51,6 +51,7 @@ public class Weather {
 
     public Weather() {}
 
+    @SuppressWarnings("unused")
     public Weather(Bundle b) {
         this(b.getDouble("temperature"), b.getDouble("humidity"),
                 b.getString("weather"), b.getString("conditions"), b.getDouble("feelsLike"),
@@ -83,9 +84,9 @@ public class Weather {
         String msg = getConditions();
         if (getWindSpeed() > 0) {
             if (getWindSpeed() == (long) getWindSpeed()) {
-                msg += String.format(", %dMPH %s winds", (long)getWindSpeed(), getWindDir());
+                msg += String.format(Locale.ENGLISH, ", %dMPH %s winds", (long)getWindSpeed(), getWindDir());
             } else {
-                msg += String.format(", %.1fMPH %s winds", getWindSpeed(), getWindDir());
+                msg += String.format(Locale.ENGLISH, ", %.0fMPH %s winds", getWindSpeed(), getWindDir());
             }
         }
         return msg;
@@ -148,7 +149,7 @@ public class Weather {
     }
 
     public String getTemperatureString() {
-        return String.format("%s\u00b0F", getTemperature());
+        return String.format(Locale.ENGLISH, "%.0f\u00b0F", getTemperature());
     }
 
     public double getHumidity() {

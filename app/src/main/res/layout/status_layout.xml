@@ -15,7 +15,8 @@
             android:src="@drawable/running"
             android:layout_height="75dp"
             android:layout_width="75dp"
-            android:layout_marginVertical="27dp"
+            android:layout_marginTop="27dp"
+            android:layout_marginBottom="27dp"
             android:layout_gravity="center"
             android:scaleType="fitXY"/>
 
@@ -28,8 +29,7 @@
             android:textAlignment="center"
             android:paddingTop="12dp"
             android:paddingBottom="28dp"
-            android:layout_margin="16dp"
-            android:text="The PRT is currently running on a normal schedule."/>
+            android:layout_margin="16dp"/>
 
         <TextView
             android:id="@+id/status_updated"
@@ -38,5 +38,5 @@
             android:textColor="#fff"
             android:textAlignment="center"
             android:textSize="5pt"
-            android:text="Last updated 3 hours ago"/>
+            android:text="@string/last_updated_temp"/>
     </LinearLayout>
