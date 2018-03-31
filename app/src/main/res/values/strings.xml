@@ -56,6 +56,7 @@
     <string name="weather_api">https://prtstat.us/api/weather</string>
     <string name="weather_uri">http://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=KWVMORGA25</string>
     <string name="links_json">https://storage.googleapis.com/wvuprtstatus-ec646.appspot.com/links.json</string>
+    <string name="about_html">https://storage.googleapis.com/wvuprtstatus-ec646.appspot.com/about.html</string>
     <string name="modpub_app_id">ca-app-pub-9151949953714861~3453430320</string>
     <string name="modpub_main_ad_unit_id">ca-app-pub-9151949953714861/2318998979</string>
 
@@ -64,7 +65,4 @@
     <string name="pref_okay">Thanks</string>
     <string name="pref_close">Close</string>
     <string name="pref_about_title">About</string>
-    <string name="pref_about_text"><![CDATA[
-        <h3>WVU PRT Status <small>by Austin Siford <small>(<a href="https://twitter.com/AustinDizzy">@AustinDizzy</a> / <a href="https://abs.ec">abs.ec</a>)</small></small></h3><b>Version:</b> {{version}}<br><b>Build Date:</b> {{buildDate}}<br><br>This app is <a href="https://github.com/austindizzy/prtstatus-android">free and open-source software</a>. Visit the project website at <a href="http://prtstat.us">prtstat.us</a>.<br><br>Made by the hands of a proud Mountaineer.
-    ]]></string>
 </resources>

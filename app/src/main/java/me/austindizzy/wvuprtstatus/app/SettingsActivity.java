@@ -21,8 +21,13 @@ import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import android.text.format.DateFormat;
@@ -119,7 +124,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             aboutBtn.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference pref) {
                     mFirebaseAnalytics.setCurrentScreen(getActivity(), "About Screen", null);
-                    buildAboutDialog(getActivity()).show();
+                    showAboutDialog(getActivity());
                     return true;
                 }
             });
@@ -153,23 +158,41 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
 
-        final AlertDialog buildAboutDialog(Context context) {
-            AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(context)
+        private void showAboutDialog(final Context context) {
+            final AlertDialog.Builder aboutBuilder = new AlertDialog.Builder(context)
                     .setPositiveButton(getString(R.string.pref_okay), null)
                     .setNegativeButton(getString(R.string.pref_close), null);
 
+            final PRTStatus lastStatus = AppDatabase.getAppDatabase(context).statusDao().getLast();
+            final AlertDialog aboutDialog = aboutBuilder.create();
+
             View layout = View.inflate(context, R.layout.about_dialog, null);
+            final ProgressBar bar = layout.findViewById(R.id.progress);
+            final TextView aboutMsg = layout.findViewById(R.id.about_text);
+            bar.setVisibility(View.VISIBLE);
 
-            TextView aboutMsg = layout.findViewById(R.id.about_text);
-            String msgText = getString(R.string.pref_about_text);
-            msgText = msgText.replace("{{version}}", BuildConfig.VERSION_NAME)
-                .replace("{{buildDate}}", DateFormat.format("M/d/y @ HH:mm:ss", BuildConfig.TIMESTAMP));
-            aboutMsg.setText(Html.fromHtml(msgText));
-            aboutMsg.setMovementMethod(LinkMovementMethod.getInstance());
-
-            AlertDialog aboutDialog = aboutBuilder.create();
             aboutDialog.setView(layout, 0, 0, 0, 0);
-            return aboutDialog;
+            aboutDialog.show();
+
+            StringRequest request = new StringRequest(Request.Method.GET, getString(R.string.about_html), new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    response = response.replace("{{version}}", BuildConfig.VERSION_NAME)
+                            .replace("{{buildDate}}", DateFormat.format("M/d/y @ HH:mm:ss", BuildConfig.TIMESTAMP))
+                            .replace("{{lastStatusTimestamp}}", String.valueOf(lastStatus.getTimestamp()));
+
+                    aboutMsg.setText(Html.fromHtml(response));
+                    aboutMsg.setMovementMethod(LinkMovementMethod.getInstance());
+                    bar.setVisibility(View.GONE);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //TODO: something with error
+                }
+            });
+
+            HTTPRequestQueue.getInstance(context).addToRequestQueue(request);
         }
     }
 }

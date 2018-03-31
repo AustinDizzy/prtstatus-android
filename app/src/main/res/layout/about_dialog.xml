@@ -4,15 +4,22 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="0dp"
-    android:layout_margin="0dp">
+    android:layout_margin="0dp"
+    android:animateLayoutChanges="true">
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="8dp"
         android:background="@drawable/about_footer"/>
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="8dp"
+        style="?android:attr/progressBarStyleLarge"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/about_text"
-        android:text="@string/pref_about_text"
         android:layout_margin="8dp"/>
 </LinearLayout>
