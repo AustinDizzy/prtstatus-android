@@ -1,28 +1,30 @@
 PRT Status for Android
 =====
 
+[https://prtstat.us](https://prtstat.us)
+
 ![prt_promotion](https://raw.githubusercontent.com/AustinDizzy/prtstatus-android/master/artwork/listing-promo.png)
-
-[As featured on WVUToday](http://wvutoday.wvu.edu/n/2014/08/15/student-employee-develops-wvu-prt-status-app-to-alert-riders-about-service), this android application is to help students at West Virginia University track the uptime status of the [Personal Rapid Transit \(PRT\)](https://transportation.wvu.edu/prt).
-
-This app uses Google Cloud Messaging to receive payloads directly from my GCM server (found [here](https://github.com/AustinDizzy/prtstatus-go), written in Go).
 
 [![get_it_on_play](https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=me.austindizzy.wvuprtstatus.app)
 
-You can also find nightly versions (versions which are live and supported but aren't available on the Google Play Store just yet) on the [releases page](https://github.com/AustinDizzy/prtstatus-android/releases) of this repository.
+[As featured on WVUToday](http://wvutoday.wvu.edu/n/2014/08/15/student-employee-develops-wvu-prt-status-app-to-alert-riders-about-service), this Android application is to help the community at West Virginia University track the uptime status of the [Personal Rapid Transit \(PRT\)](https://transportation.wvu.edu/prt) and be notified instantly of any service disruptions.
 
----
+The app receives data from [a companion server](https://github.com/AustinDizzy/prtstatus-go), which is written in Go and running on Google App Engine, using Firebase Cloud Messaging.
 
-### Credits
+## Technologies
 
-Myself, [Austin Dizzy](https://austindizzy.me) ([@AustinDizzy](https://twitter.com/AustinDizzy)) - It didn't take me very long to make this app, but I'm still proud of it. Something small that I did can potentially benefit many students and help to make their first year, or even their last year, in college just a little less stressful.
+The Android app currently supports Android versions 4.0.3 (ICS) through 8.1 (Oreo) and up, using:
+* [Room](https://developer.android.com/reference/android/arch/persistence/room/package-summary.html) - for local data storage
+* [Volley](https://github.com/google/volley) - for making and managing network requests
+* [Firebase](htps://firebase.google.com) - for sending event notifications and messages to clients, displaying ads from [AdMob](https://ww.google.com/admob/), and collecting app analytics
 
-[Dave Olsen](http://dmolsen.com/) ([@dmolsen](https://twitter.com/dmolsen)) - For providing the initial idea(s) and helping my initial development by providing me with the PRT API and fixing a few bugs in the PRT API that made prototyping all that much easier. Dave also helped me get through WVU's Trademark and Licensing legal group quick and smooth enough so that I could launch the app just as students were arriving back on campus.
 
-[Vicki Smith](https://www.linkedin.com/pub/vicki-smith/a/558/67b) ([@MissVickiWV](https://twitter.com/MissVickiWV)) - Vicki helped me push news of my app to the entire student body by posting it across WVU's mediums of public communication. Getting the [article posted on WVU Today](http://wvutoday.wvu.edu/n/2014/08/15/student-employee-develops-wvu-prt-status-app-to-alert-riders-about-service), [tweeting and spreading](https://twitter.com/WVUNewsFeed/status/500298359274364928) the [news over twitter](https://twitter.com/wvuoit/status/500312181754560512), and [making sure students had a way to notice it](https://www.facebook.com/permalink.php?story_fbid=10152185949546269&id=23556496268) before beginning their journey with the spotty PRT.
+## License
 
-### Contributing & Issues
+This project is free and open source software, with usage provided under the [MIT License](https://abs.mit-license.org). See [LICENSE](./LICENSE) for full details.
 
-Notice an issue and know how to fix it? [Fork](https://github.com/AustinDizzy/prtstatus-android/fork) the repo, fix the issue, and submit a pull request. After I've put it through proper testing, I'll accept the pull request and your change will go live including you being mentioned in the app and repo's credits.
+## Issues & Contributing
 
-If you don't know how to code and just want to report an issue, head on over to the [issues](https://github.com/AustinDizzy/prtstatus-android/issues) page and submit and issue. I'll respond to your claim as soon as I can and work to get a fix as soon as possible.
+Notice an issue and know how to fix it? Pull requests are welcome! After your code has been reviewed and proven sound, I'll accept the pull request and my local CI will pull and prepare the app as an alpha build on Google Play, to be upgraded to a full release at my discretion.
+
+Please also feel free to [post an issue](https://github.com/AustinDizzy/prtstatus-android/issues/new) with any other feature requests, bugs, or general questions about the project.
