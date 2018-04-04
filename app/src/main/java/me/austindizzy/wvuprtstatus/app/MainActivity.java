@@ -215,7 +215,39 @@ public class MainActivity extends AppCompatActivity {
     private void touchStatus(Context context) {
         PRTStatus lastStatus = db.statusDao().getLast();
         if (lastStatus != null) updateStatus(context, lastStatus);
-        List<PRTStatus> recentUpdates = db.statusDao().getRecent(System.currentTimeMillis() / 1000);
+        long now = System.currentTimeMillis() / 1000;
+        List<PRTStatus> recentUpdates;
+
+        switch (prefs.getString("num_recent", "100")) {
+            case "-1":
+                recentUpdates = null;
+                break;
+            case "1":
+                recentUpdates = db.statusDao().getNDays(now, 1);
+                break;
+            case "5":
+                recentUpdates = db.statusDao().getNDays(now, 5);
+                break;
+            case "10":
+                recentUpdates = db.statusDao().getNDays(now, 10);
+                break;
+            case "15":
+                recentUpdates = db.statusDao().getNDays(now, 15);
+                break;
+            case "30":
+                recentUpdates = db.statusDao().getNUpdates(3);
+                break;
+            case "50":
+                recentUpdates = db.statusDao().getNUpdates(5);
+                break;
+            case "150":
+                recentUpdates = db.statusDao().getNUpdates(15);
+                break;
+            case "100":
+            default:
+                recentUpdates = db.statusDao().getNUpdates(10);
+                break;
+        }
         setAdapter(recentUpdates);
     }
 

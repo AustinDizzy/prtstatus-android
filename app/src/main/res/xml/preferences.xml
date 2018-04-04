@@ -1,5 +1,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
+        android:key="display_cat"
+        android:title="@string/pref_header_general">
+        <ListPreference
+            android:key="num_recent"
+            android:title="@string/pref_num_recent_title"
+            android:summary="@string/pref_num_recent_desc"
+            android:defaultValue="100"
+            android:entries="@array/pref_num_recent_opts"
+            android:entryValues="@array/pref_num_recent_vals"/>
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="enable_ads"
+            android:title="@string/pref_title_enable_ads"
+            android:summary="@string/pref_description_enable_ads"/>
+    </PreferenceCategory>
+    <PreferenceCategory
         android:key="notif_cat"
         android:title="@string/pref_header_notifications">
 
@@ -32,11 +48,6 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/pref_header_other">
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="enable_ads"
-            android:title="@string/pref_title_enable_ads"
-            android:summary="@string/pref_description_enable_ads"/>
         <Preference
             android:key="reset"
             android:title="@string/pref_reset_data" />

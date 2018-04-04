@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 
 public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder> {
@@ -40,7 +41,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
 
     StatusAdapter(List<PRTStatus> updates) {
         if (updates != null && updates.size() > 0) updates.remove(0);
-        this.updates = updates;
+        this.updates = (updates == null) ? new LinkedList<PRTStatus>() : updates;
     }
 
     @Override
@@ -52,7 +53,12 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
             case AD_TYPE:
                 layout = prefs.getBoolean("enable_ads", false) ? R.layout.main_adview : R.layout.empty;
                 break;
-            case HEADER_TYPE: layout = R.layout.status_list_header;
+            case HEADER_TYPE:
+                if (prefs.getString("num_recent", "100").equals("-1")) {
+                    layout = R.layout.empty;
+                } else {
+                    layout = R.layout.status_list_header;
+                }
                 break;
             case WEATHER_TYPE: layout = R.layout.main_weather;
                 break;

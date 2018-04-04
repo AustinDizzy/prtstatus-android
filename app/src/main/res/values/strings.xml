@@ -19,6 +19,31 @@
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_header_other">Other</string>
 
+    <string name="pref_num_recent_title">Number of Recent Updates</string>
+    <string name="pref_num_recent_desc">The number of recent updates to display on the main screen.</string>
+    <string-array name="pref_num_recent_opts">
+        <item>None</item>
+        <item>24 hours</item>
+        <item>5 days</item>
+        <item>10 days</item>
+        <item>15 days</item>
+        <item>3 updates</item>
+        <item>5 updates</item>
+        <item>10 updates</item>
+        <item>15 updates</item>
+    </string-array>
+    <string-array name="pref_num_recent_vals">
+        <item>-1</item>
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>50</item>
+        <item>100</item>
+        <item>150</item>
+    </string-array>
+
     <string name="pref_title_notifications">Enable Notifications</string>
     <string name="pref_description_notifications">Enable notifications on any system changes</string>
     <string name="notif_channel_name">PRT Status Updates</string>
@@ -43,14 +68,14 @@
     </string-array>
 
     <string name="pref_title_notification_style">Notification Style</string>
-    <string name="pref_summary_notification_style">Users with Android O (8.0+) can directly edit style of notifications in the Settings app.</string>
+    <string name="pref_summary_notification_style">Android Oreo (8.0+) allows users to directly edit style of app notifications in the Settings app.</string>
 
     <string name="pref_reset_data">Clear Stored Data</string>
     <string name="pref_confirm_title">Delete Local Data</string>
     <string name="pref_confirm_msg">This will remove all locally stored cached status updates, restart the app, and reload the local database with the previous 10 events. Are you sure you wish to do this?</string>
 
     <string name="pref_title_enable_ads">Enable Advertisements</string>
-    <string name="pref_description_enable_ads">By default, the app is ad-free. Turning them on will show a single, small, unobtrusive advertisement directly below the current PRT status, and will help support development efforts.</string>
+    <string name="pref_description_enable_ads">By default, the app is completely ad-free. Turning them on will show a single, small, unobtrusive advertisement directly below the current weather. All support is very appreciated, and the few dollars from ad revenue will help further development efforts.</string>
 
     <string name="status_api">https://prtstat.us/api/status</string>
     <string name="weather_api">https://prtstat.us/api/weather</string>
