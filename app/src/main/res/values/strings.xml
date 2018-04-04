@@ -19,6 +19,9 @@
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_header_other">Other</string>
 
+    <string name="pref_enable_weather_title">Enable Weather</string>
+    <string name="pref_enable_weather_desc">Shows the current weather conditions as recorded from the Brooks Hall weather sensor on the Downtown campus in a card beneath the current PRT status.</string>
+
     <string name="pref_num_recent_title">Number of Recent Updates</string>
     <string name="pref_num_recent_desc">The number of recent updates to display on the main screen.</string>
     <string-array name="pref_num_recent_opts">

@@ -10,6 +10,11 @@
             android:entries="@array/pref_num_recent_opts"
             android:entryValues="@array/pref_num_recent_vals"/>
         <SwitchPreference
+            android:defaultValue="true"
+            android:key="enable_weather"
+            android:title="@string/pref_enable_weather_title"
+            android:summary="@string/pref_enable_weather_desc" />
+        <SwitchPreference
             android:defaultValue="false"
             android:key="enable_ads"
             android:title="@string/pref_title_enable_ads"

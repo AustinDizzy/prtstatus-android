@@ -49,9 +49,12 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     public StatusAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout = 0;
         if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(parent.getContext());
+        boolean enable_weather = prefs.getBoolean("enable_weather", true);
+        boolean enable_ads = prefs.getBoolean("enable_ads", false);
+
         switch (viewType) {
             case AD_TYPE:
-                layout = prefs.getBoolean("enable_ads", false) ? R.layout.main_adview : R.layout.empty;
+                layout =  enable_ads ? R.layout.main_adview : R.layout.empty;
                 break;
             case HEADER_TYPE:
                 if (prefs.getString("num_recent", "100").equals("-1")) {
@@ -60,7 +63,8 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
                     layout = R.layout.status_list_header;
                 }
                 break;
-            case WEATHER_TYPE: layout = R.layout.main_weather;
+            case WEATHER_TYPE:
+                layout = enable_weather ? R.layout.main_weather : R.layout.empty;
                 break;
             case UPDATE_TYPE: layout = R.layout.status_list;
                 break;
@@ -68,23 +72,18 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         ViewHolder holder = new ViewHolder(view);
 
-        View.OnClickListener listener;
-        switch (viewType) {
-            case WEATHER_TYPE:
-                listener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Context context = view.getContext();
-                        final String href = context.getString(R.string.weather_uri);
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(href));
-                        context.startActivity(intent);
-                    }
-                };
-                break;
-                default:
-                    listener = null;
+        if (enable_weather && viewType == WEATHER_TYPE) {
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Context context = view.getContext();
+                    final String href = context.getString(R.string.weather_uri);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(href));
+                    context.startActivity(intent);
+                }
+            };
+            view.setOnClickListener(listener);
         }
-        if (listener != null) view.setOnClickListener(listener);
 
         return holder;
     }
@@ -95,15 +94,18 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     public void onBindViewHolder(@NonNull StatusAdapter.ViewHolder holder, int position) {
         int type = getItemViewType(position);
         if (prefs == null) prefs = PreferenceManager.getDefaultSharedPreferences(holder.context);
+        boolean enable_weather = prefs.getBoolean("enable_weather", true);
+        boolean enable_ads = prefs.getBoolean("enable_ads", false);
+
         switch (type) {
             case AD_TYPE:
-                if (prefs.getBoolean("enable_ads", false) && holder.bannerAd != null) {
+                if (enable_ads && holder.bannerAd != null) {
                     AdRequest adRequest = new AdRequest.Builder().build();
                     holder.bannerAd.loadAd(adRequest);
                 }
                 break;
             case WEATHER_TYPE:
-                fetchWeather(holder);
+                if (enable_weather) fetchWeather(holder);
                 break;
             case UPDATE_TYPE:
                 PRTStatus status = updates.get(position - 3);
