@@ -76,6 +76,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             final FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(getActivity());
             TwoStatePreference enableNotifs = ((TwoStatePreference)findPreference("enable_notifs"));
+            TwoStatePreference enableWeather = ((TwoStatePreference)findPreference("enable_weather"));
             Preference notifCatStyleBtn = findPreference("oreo_cat");
 
             pollNotifEnabled(enableNotifs.isChecked());
@@ -83,6 +84,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
                     pollNotifEnabled(o.equals(true));
+                    return true;
+                }
+            });
+
+            pollWeatherEnabled(enableWeather.isChecked());
+            enableWeather.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    pollWeatherEnabled(o.equals(true));
                     return true;
                 }
             });
@@ -141,6 +151,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     // TODO: something with e
                 }
             }
+        }
+
+        private void pollWeatherEnabled(boolean b) {
+            findPreference("temp_type").setEnabled(b);
         }
 
         private void pollNotifEnabled(boolean b) {

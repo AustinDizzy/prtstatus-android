@@ -126,6 +126,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
     private void setWeather(ViewHolder holder, Weather weather) {
         if (weather == null) { return; }
         String w = weather.getWeather().replace("chance", "");
+        String type = prefs.getString("temp_type", "0");
         int icon = R.drawable.clear_day;
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         boolean isDay = (hour > 6 && hour < 18);
@@ -164,7 +165,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
         }
 
         holder.conditionsText.setText(weather.toString());
-        holder.temperatureText.setText(weather.getTemperatureString());
+        holder.temperatureText.setText(type.equals("1") ? weather.getTemperatureString() : weather.getFeelsLikeString());
         holder.weatherIcon.setImageResource(icon);
     }
 

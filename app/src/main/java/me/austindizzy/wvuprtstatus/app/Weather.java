@@ -82,7 +82,7 @@ public class Weather {
 
     public String toString() {
         String msg = getConditions();
-        if (getWindSpeed() > 0) {
+        if (Math.floor(getWindSpeed()) > 0) {
             if (getWindSpeed() == (long) getWindSpeed()) {
                 msg += String.format(Locale.ENGLISH, ", %dMPH %s winds", (long)getWindSpeed(), getWindDir());
             } else {
@@ -150,6 +150,10 @@ public class Weather {
 
     public String getTemperatureString() {
         return String.format(Locale.ENGLISH, "%.0f\u00b0F", getTemperature());
+    }
+
+    public String getFeelsLikeString() {
+        return String.format(Locale.ENGLISH, "%.0f\u00b0F", getFeelsLike());
     }
 
     public double getHumidity() {

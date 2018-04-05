@@ -47,6 +47,18 @@
         <item>150</item>
     </string-array>
 
+    <string name="pref_temp_type_title">Temperature Display Type</string>
+    <string name="pref_temp_type_desc">Display "Feels Like" or actual temperature.</string>
+
+    <string-array name="pref_temp_type_types">
+        <item>Feels Like</item>
+        <item>Actual</item>
+    </string-array>
+    <string-array name="pref_temp_type_vals">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
     <string name="pref_title_notifications">Enable Notifications</string>
     <string name="pref_description_notifications">Enable notifications on any system changes</string>
     <string name="notif_channel_name">PRT Status Updates</string>

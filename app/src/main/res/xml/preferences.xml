@@ -14,6 +14,13 @@
             android:key="enable_weather"
             android:title="@string/pref_enable_weather_title"
             android:summary="@string/pref_enable_weather_desc" />
+        <ListPreference
+            android:key="temp_type"
+            android:title="@string/pref_temp_type_title"
+            android:summary="@string/pref_temp_type_desc"
+            android:defaultValue="1"
+            android:entries="@array/pref_temp_type_types"
+            android:entryValues="@array/pref_temp_type_vals"/>
         <SwitchPreference
             android:defaultValue="false"
             android:key="enable_ads"
