@@ -82,7 +82,7 @@
 
     <string name="status_api">https://prtstat.us/api/status</string>
     <string name="weather_api">https://prtstat.us/api/weather</string>
-    <string name="weather_uri">http://www.wunderground.com/weatherstation/WXDailyHistory.asp?ID=KWVMORGA25</string>
+    <string name="weather_uri">https://www.wunderground.com/personal-weather-station/dashboard?ID=KWVMORGA25&amp;apiref=1073699a99ea207a</string>
     <string name="links_json">https://storage.googleapis.com/wvuprtstatus-ec646.appspot.com/links.json</string>
     <string name="about_html">https://storage.googleapis.com/wvuprtstatus-ec646.appspot.com/about.html</string>
     <string name="modpub_app_id">ca-app-pub-9151949953714861~3453430320</string>
