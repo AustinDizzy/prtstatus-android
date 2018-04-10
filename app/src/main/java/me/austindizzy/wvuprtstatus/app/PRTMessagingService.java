@@ -4,6 +4,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,22 +39,22 @@ public class PRTMessagingService extends FirebaseMessagingService {
         Map<String, String> data = msg.getData();
         Log.d(TAG, "New Message: " + data);
 
-        Intent intent = new Intent(MainActivity.STATUS_UPDATE);
+        Intent update = new Intent(MainActivity.STATUS_UPDATE);
 
         for (String key : data.keySet()) {
             String val = data.get(key);
             switch (key) {
                 case "status":
-                    intent.putExtra(key, Integer.parseInt(val));
+                    update.putExtra(key, Integer.parseInt(val));
                     break;
                 case "timestamp":
-                    intent.putExtra(key, Long.parseLong(val));
+                    update.putExtra(key, Long.parseLong(val));
                     break;
                 case "bussesDispatched":
-                    intent.putExtra(key, val.equals("true"));
+                    update.putExtra(key, val.equals("true"));
                     break;
                 case "stations":
-                    intent.putExtra(key, val.split(","));
+                    update.putExtra(key, val.split(","));
                     break;
                 case "temperature":
                 case "humidity":
@@ -61,13 +63,13 @@ public class PRTMessagingService extends FirebaseMessagingService {
                 case "windSpeed":
                 case "visibility":
                 case "feelsLike":
-                    intent.putExtra(key, Double.parseDouble(val));
+                    update.putExtra(key, Double.parseDouble(val));
                     break;
                 case "message":
                 case "weather":
                 case "conditions":
                 case "windDir":
-                    intent.putExtra(key, val);
+                    update.putExtra(key, val);
                     break;
                 default:
                     Log.i("PRTMsg", "untracked key \"" + key + "\"");
@@ -77,12 +79,12 @@ public class PRTMessagingService extends FirebaseMessagingService {
 
         PRTStatus status = null;
         //Weather weather = null;
-        if (intent.getExtras() != null) {
-            status = new PRTStatus(intent.getExtras());
+        if (update.getExtras() != null) {
+            status = new PRTStatus(update.getExtras());
             // weather = new Weather(intent.getExtras());
         }
 
-        broadcastManager.sendBroadcast(intent);
+        broadcastManager.sendBroadcast(update);
         if (status != null && shouldNotify(status)) {
             sendNotification(status);
         }
@@ -91,6 +93,14 @@ public class PRTMessagingService extends FirebaseMessagingService {
 
         // don't store weather for now, until we have a real need for it
         //db.weatherDao().insert(weather);
+
+        Intent widget = new Intent(this, StatusWidget.class);
+        ComponentName component = new ComponentName(getApplication(), StatusWidget.class);
+        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(component);
+
+        widget.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        widget.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(widget);
     }
 
     private void sendNotification(PRTStatus status) {
