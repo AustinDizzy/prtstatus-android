@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchLinks(Context context) {
         final SharedPreferences.Editor editor = prefs.edit();
-        long interval = (60 * 60 * 24) * 14 * 1000;
+        long interval = (60 * 60 * 24) * 7 * 1000;
         long lastUpdate = prefs.getLong("lastLinkUpdate", 0);
         if (lastUpdate < System.currentTimeMillis() - interval) {
             String uri = getString(R.string.links_json);
