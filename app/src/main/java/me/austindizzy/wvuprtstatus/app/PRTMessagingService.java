@@ -141,7 +141,8 @@ public class PRTMessagingService extends FirebaseMessagingService {
             mBuilder = mBuilder.setContentText(status.getMessage());
         }
 
-         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) mBuilder.setLights(colorRes, 500, 500);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) mBuilder.setChannelId(getString(R.string.notif_channel_name));
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) mBuilder.setLights(colorRes, 500, 500);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) mBuilder = mBuilder.setCategory(Notification.CATEGORY_EVENT);
 
         if (mNotificationManager != null)
