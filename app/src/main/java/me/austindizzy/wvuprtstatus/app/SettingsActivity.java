@@ -104,9 +104,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     @Override
                     @TargetApi(Build.VERSION_CODES.O)
                     public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                        Intent intent = new Intent()
+                                .setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                                 .putExtra(Settings.EXTRA_APP_PACKAGE, getContext().getPackageName())
-                                .putExtra(Settings.EXTRA_CHANNEL_ID, PRTMessagingService.TAG);
+                                .putExtra(Settings.EXTRA_CHANNEL_ID, R.string.notif_channel_name);
                         startActivity(intent);
                         return true;
                     }
