@@ -4,6 +4,8 @@ package me.austindizzy.wvuprtstatus.app;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 
 public class StatusApplication extends Application implements Application.ActivityLifecycleCallbacks {
 
@@ -12,6 +14,7 @@ public class StatusApplication extends Application implements Application.Activi
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         registerActivityLifecycleCallbacks(this);
     }
 
