@@ -39,3 +39,6 @@ app/release
 
 # Firebase API keys
 google-services.json
+
+# Fabric API secrets
+fabric.properties
