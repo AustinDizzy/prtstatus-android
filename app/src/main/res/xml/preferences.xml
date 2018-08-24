@@ -62,7 +62,8 @@
         android:title="@string/pref_header_other">
         <Preference
             android:key="reset"
-            android:title="@string/pref_reset_data" />
+            android:title="@string/pref_reset_data_name"
+            android:summary="@string/pref_reset_data_desc"/>
         <Preference
             android:key="about"
             android:title="@string/pref_about_title" />

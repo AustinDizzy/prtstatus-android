@@ -85,7 +85,8 @@
     <string name="pref_title_notification_style">Notification Style</string>
     <string name="pref_summary_notification_style">Android Oreo (8.0+) allows users to directly edit style of app notifications in the Settings app.</string>
 
-    <string name="pref_reset_data">Clear Stored Data</string>
+    <string name="pref_reset_data_name">Clear Stored Data</string>
+    <string name="pref_reset_data_desc">Deletes this app\'s locally saved data. When in doubt, this fixes most bugs.</string>
     <string name="pref_confirm_title">Delete Local Data</string>
     <string name="pref_confirm_msg">This will remove all locally stored cached status updates, restart the app, and reload the local database with the previous 10 events. Are you sure you wish to do this?</string>
 
