@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -103,25 +104,30 @@ public class PRTMessagingService extends FirebaseMessagingService {
         sendBroadcast(widget);
     }
 
-    private void sendNotification(PRTStatus status) {
-        int color = status.IsOpen() ? R.color.ForestGreen : R.color.FireBrick;
-        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), color);
-        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender().setBackground(mBitmap);
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String name = getString(R.string.notif_channel_name);
+            String description = getString(R.string.notif_channel_desc);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
 
+            NotificationChannel channel = new NotificationChannel(TAG, name, importance);
+            channel.setDescription(description);
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (manager != null) manager.createNotificationChannel(channel);
+        }
+    }
+
+    private void sendNotification(PRTStatus status) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel();
+        int color = status.IsOpen() ? R.color.ForestGreen : R.color.FireBrick;
+        int colorRes = getResources().getColor(color);
+        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), color);
         String notificationMsg = "The PRT is " + (status.IsOpen() ? "UP" : (status.IsClosed() ? "CLOSED" : "DOWN"));
+
+        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender().setBackground(mBitmap);
         Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, 0);
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(TAG, getString(R.string.notif_channel_name), NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(getString(R.string.notif_channel_desc));
-            channel.setLightColor(color);
-            if (mNotificationManager != null)
-                mNotificationManager.createNotificationChannel(channel);
-        }
-
-        int colorRes = getResources().getColor(color);
+        NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(getApplicationContext());
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, TAG)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -132,6 +138,7 @@ public class PRTMessagingService extends FirebaseMessagingService {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
+                .setLights(colorRes, 500, 500)
                 .setContentIntent(contentIntent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -142,11 +149,9 @@ public class PRTMessagingService extends FirebaseMessagingService {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) mBuilder.setChannelId(getString(R.string.notif_channel_name));
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) mBuilder.setLights(colorRes, 500, 500);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) mBuilder = mBuilder.setCategory(Notification.CATEGORY_EVENT);
 
-        if (mNotificationManager != null)
-            mNotificationManager.notify(1975, mBuilder.build());
+        mNotificationManager.notify(1975, mBuilder.build());
     }
 
     private boolean shouldNotify(PRTStatus status) {
