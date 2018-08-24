@@ -134,8 +134,16 @@ public class MainActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    // error
-                    Log.d("PRTLinks", error.getMessage());
+                    if (error != null) {
+                        Log.d("PRTLinks", "Failed with error:\t" + error.getMessage());
+                        Log.d("PRTLinks", "Error stacktrace:\t" + error.getStackTrace());
+                        try {
+                            byte[] htmlBodyBytes = error.networkResponse.data;
+                            Log.e("PRTLinks", new String(htmlBodyBytes), error);
+                        } catch (NullPointerException e) {
+                            Log.d("PRTLinks", "Volley error response null");
+                        }
+                    }
                 }
             });
             HTTPRequestQueue.getInstance(context).addToRequestQueue(arrayRequest);
